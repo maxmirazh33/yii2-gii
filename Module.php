@@ -21,4 +21,13 @@ class Module extends \yii\gii\Module implements BootstrapInterface
             'extension' => ['class' => 'yii\gii\generators\extension\Generator'],
         ];
     }
+
+    /**
+     * Returns the directory that contains the view files for this module.
+     * @return string the root directory of view files. Defaults to "[[basePath]]/views".
+     */
+    public function getViewPath()
+    {
+        return Yii::getAlias('@yii/gii') . DIRECTORY_SEPARATOR . 'views';
+    }
 }
