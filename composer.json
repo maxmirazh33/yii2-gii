@@ -19,7 +19,7 @@
     ],
     "require": {
         "yiisoft/yii2": "*",
-        "yiisoft/gii": "*"
+        "yiisoft/yii2-gii": "*"
     },
     "autoload": {
         "psr-4": {

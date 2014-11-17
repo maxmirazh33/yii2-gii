@@ -7,16 +7,18 @@ Installation
 
 The preferred way to install this extension is through [composer](http://getcomposer.org/download/).
 
-Either run
+Add
 
 ```
-php composer.phar require --prefer-dist maxmirazh33/yii2-gii "*"
+{
+    "type": "vcs",
+    "url": "https://github.com/maxmirazh33/yii2-gii"
+}
 ```
-
-or add
+to the repositories section of your `composer.json` file and add
 
 ```
-"maxmirazh33/yii2-gii": "*"
+"maxmirazh33/yii2-gii": "dev-master"
 ```
 
 to the require section of your `composer.json` file.
