@@ -19,7 +19,9 @@
     ],
     "require": {
         "yiisoft/yii2": "*",
-        "yiisoft/yii2-gii": "*"
+        "yiisoft/yii2-gii": "*",
+        "vova07/yii2-imperavi-widget": "*",
+        "kartik-v/yii2-widget-datepicker": "*"
     },
     "autoload": {
         "psr-4": {

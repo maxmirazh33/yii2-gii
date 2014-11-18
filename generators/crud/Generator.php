@@ -3,6 +3,7 @@ namespace maxmirazh33\gii\generators\crud;
 
 use Yii;
 use yii\base\NotSupportedException;
+use yii\db\ColumnSchema;
 use yii\db\mysql\Schema;
 use yii\helpers\Inflector;
 use yii\helpers\StringHelper;
@@ -168,7 +169,8 @@ class Generator extends \yii\gii\generators\crud\Generator
         $rules = [];
         foreach ($types as $type => $columns) {
             if ($type == 'date') {
-                $rules[] = "[['" . implode("', '", $columns) . "'], '$type', 'format' => 'php:Y-m-d', 'except' => ['search']]";
+                $rules[] = "[['" . implode("', '",
+                        $columns) . "'], '$type', 'format' => 'php:Y-m-d', 'except' => ['search']]";
             } else {
                 $rules[] = "[['" . implode("', '", $columns) . "'], '$type', 'except' => ['search']]";
             }
@@ -192,7 +194,8 @@ class Generator extends \yii\gii\generators\crud\Generator
                         $labels = array_intersect_key($this->generateLabels($table), array_flip($uniqueColumns));
                         $lastLabel = array_pop($labels);
                         $columnsList = implode("', '", $uniqueColumns);
-                        $rules[] = "[['" . $columnsList . "'], 'unique', 'targetAttribute' => ['" . $columnsList . "'], 'message' => 'The combination of " . implode(', ', $labels) . " and " . $lastLabel . " has already been taken.', 'except' => ['search']]";
+                        $rules[] = "[['" . $columnsList . "'], 'unique', 'targetAttribute' => ['" . $columnsList . "'], 'message' => 'The combination of " . implode(', ',
+                                $labels) . " and " . $lastLabel . " has already been taken.', 'except' => ['search']]";
                     }
                 }
             }
@@ -256,7 +259,7 @@ class Generator extends \yii\gii\generators\crud\Generator
      */
     public function getViewPath()
     {
-        return Yii::getAlias('@backend') . '/views/' . $this->getControllerID() ;
+        return Yii::getAlias('@backend') . '/views/' . $this->getControllerID();
     }
 
     public function getNameAttribute()
@@ -289,10 +292,14 @@ class Generator extends \yii\gii\generators\crud\Generator
             }
         }
         $column = $tableSchema->columns[$attribute];
-        if ($column->phpType === 'boolean') {
+        if ($column->phpType === 'boolean' || $column->dbType === 'tinyint(1)') {
             return "\$form->field(\$model, '$attribute')->checkbox()";
         } elseif ($column->type === 'text') {
-            return "\$form->field(\$model, '$attribute')->textarea(['rows' => 6])";
+            return "\$form->field(\$model, '$attribute')->widget(ImperaviWidget::className())";
+        } elseif ($this->useDatePicker($column) ) {
+            return "\$form->field(\$model, '$attribute')->widget(DatePicker::className(), ['pluginOptions' => ['format' => 'yyyy-mm-dd']])";
+        } elseif ($column->type === 'string' && $column->size > 256) {
+            return "\$form->field(\$model, '$attribute')->textArea(['rows' => 6])";
         } else {
             if (preg_match('/^(password|pass|passwd|passcode)$/i', $column->name)) {
                 $input = 'passwordInput';
@@ -305,7 +312,7 @@ class Generator extends \yii\gii\generators\crud\Generator
                     $dropDownOptions[$enumValue] = Inflector::humanize($enumValue);
                 }
                 return "\$form->field(\$model, '$attribute')->dropDownList("
-                    . preg_replace("/\n\s*/", ' ', VarDumper::export($dropDownOptions)).", ['prompt' => ''])";
+                . preg_replace("/\n\s*/", ' ', VarDumper::export($dropDownOptions)) . ", ['prompt' => ''])";
             } elseif ($column->phpType !== 'string' || $column->size === null) {
                 return "\$form->field(\$model, '$attribute')->$input()";
             } else {
@@ -326,7 +333,7 @@ class Generator extends \yii\gii\generators\crud\Generator
             return "\$form->field(\$model, '$attribute')";
         }
         $column = $tableSchema->columns[$attribute];
-        if ($column->phpType === 'boolean') {
+        if ($column->phpType === 'boolean' || $column->dbType === 'tinyint(1)') {
             return "\$form->field(\$model, '$attribute')->checkbox()";
         } else {
             return "\$form->field(\$model, '$attribute')";
@@ -340,7 +347,7 @@ class Generator extends \yii\gii\generators\crud\Generator
      */
     public function generateColumnFormat($column)
     {
-        if ($column->phpType === 'boolean') {
+        if ($column->phpType === 'boolean' || $column->dbType === 'tinyint(1)') {
             return 'boolean';
         } elseif ($column->type === 'text') {
             return 'ntext';
@@ -352,6 +359,48 @@ class Generator extends \yii\gii\generators\crud\Generator
             return 'url';
         } else {
             return 'text';
+        }
+    }
+
+    /**
+     * Check need use ImperaviWidget
+     * @return bool
+     */
+    public function useImperavi()
+    {
+        $tableSchema = $this->getTableSchema();
+        foreach ($tableSchema->columns as $column) {
+            if ($column->type === 'text') {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Check need use DatePicker
+     * @param ColumnSchema|null $attribute
+     * @return bool
+     */
+    public function useDatePicker($attribute = null){
+        $use = function ($attrs) {
+            foreach ($attrs as $attr) {
+                if (
+                    stripos($attr->name, 'date') !== false
+                    || stripos($attr->name, 'created') !== false
+                    || stripos($attr->name, 'updated') !== false
+                ) {
+                    return true;
+                }
+            }
+            return false;
+        };
+
+        if ($attribute !== null) {
+            return $use([$attribute]);
+        } else {
+            return $use($this->getTableSchema()->columns);
         }
     }
 }

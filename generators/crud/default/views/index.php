@@ -37,29 +37,36 @@ $this->params['title'] = '<?= $russianName ?>';
     <?= "<?= " ?>GridView::widget([
         'dataProvider' => $dataProvider,
         <?= !empty($generator->searchModelClass) ? "'filterModel' => \$model,\n        'columns' => [\n" : "'columns' => [\n"; ?>
-                ['class' => 'yii\grid\SerialColumn'],
+            ['class' => 'yii\grid\SerialColumn'],
 <?php
 $count = 0;
 if (($tableSchema = $generator->getTableSchema()) === false) {
     foreach ($generator->getColumnNames() as $name) {
         if (++$count < 6) {
-            echo "                '" . $name . "',\n";
+            echo "            '" . $name . "',\n";
         } else {
-            echo "                // '" . $name . "',\n";
+            echo "            //'" . $name . "',\n";
         }
     }
 } else {
     foreach ($tableSchema->columns as $column) {
         $format = $generator->generateColumnFormat($column);
-        if (++$count < 6) {
-            echo "                '" . $column->name . ($format === 'text' ? "" : ":" . $format) . "',\n";
+        if ($format === 'text') {
+            $col = "'$column->name'";
+        } elseif ($format === 'boolean') {
+            $col = "['class' => 'yii\\grid\\DataColumn', 'attribute' => '$column->name', 'format' => 'boolean', 'filter' => [0 => 'Нет', 1 => 'Да']]";
         } else {
-            echo "                // '" . $column->name . ($format === 'text' ? "" : ":" . $format) . "',\n";
+            $col = "'$column->name:$format'";
+        }
+        if (++$count < 6) {
+            echo "            " . $col . ",\n";
+        } else {
+            echo "            //" . $col . ",\n";
         }
     }
 }
 ?>
-                ['class' => 'yii\grid\ActionColumn'],
+            ['class' => 'yii\grid\ActionColumn'],
         ],
     ]); ?>
 

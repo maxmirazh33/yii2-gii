@@ -8,7 +8,7 @@ use yii\helpers\Inflector;
 use yii\helpers\StringHelper;
 
 /* @var $model \yii\db\ActiveRecord */
-$model = new $generator->searchModelClass();
+$model = new $generator->modelClass();
 $safeAttributes = $model->safeAttributes();
 if (empty($safeAttributes)) {
     $safeAttributes = $model->attributes();
@@ -24,6 +24,12 @@ echo "<?php\n";
 
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
+<?php if ($generator->useImperavi()): ?>
+use backend\components\ImperaviWidget;
+<?php endif; ?>
+<?php if ($generator->useDatePicker()): ?>
+use kartik\date\DatePicker;
+<?php endif; ?>
 ?>
 
 <div class="<?= Inflector::camel2id(StringHelper::basename($generator->modelClass)) ?>-form">

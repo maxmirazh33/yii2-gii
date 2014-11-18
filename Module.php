@@ -7,8 +7,7 @@ use yii\base\BootstrapInterface;
 class Module extends \yii\gii\Module implements BootstrapInterface
 {
     /**
-     * Returns the list of the core code generator configurations.
-     * @return array the list of the core code generator configurations.
+     * @inheritdoc
      */
     protected function coreGenerators()
     {
@@ -23,8 +22,7 @@ class Module extends \yii\gii\Module implements BootstrapInterface
     }
 
     /**
-     * Returns the directory that contains the view files for this module.
-     * @return string the root directory of view files. Defaults to "[[basePath]]/views".
+     * @inheritdoc
      */
     public function getViewPath()
     {
