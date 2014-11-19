@@ -296,7 +296,7 @@ class Generator extends \yii\gii\generators\crud\Generator
             return "\$form->field(\$model, '$attribute')->checkbox()";
         } elseif ($column->type === 'text') {
             return "\$form->field(\$model, '$attribute')->widget(ImperaviWidget::className())";
-        } elseif ($this->useDatePicker($column) ) {
+        } elseif ($column->dbType === 'date') {
             return "\$form->field(\$model, '$attribute')->widget(DatePicker::className(), ['pluginOptions' => ['format' => 'yyyy-mm-dd']])";
         } elseif ($column->type === 'string' && $column->size > 256) {
             return "\$form->field(\$model, '$attribute')->textArea(['rows' => 6])";
@@ -368,8 +368,7 @@ class Generator extends \yii\gii\generators\crud\Generator
      */
     public function useImperavi()
     {
-        $tableSchema = $this->getTableSchema();
-        foreach ($tableSchema->columns as $column) {
+        foreach ($this->getTableSchema()->columns as $column) {
             if ($column->type === 'text') {
                 return true;
             }
@@ -380,27 +379,16 @@ class Generator extends \yii\gii\generators\crud\Generator
 
     /**
      * Check need use DatePicker
-     * @param ColumnSchema|null $attribute
      * @return bool
      */
-    public function useDatePicker($attribute = null){
-        $use = function ($attrs) {
-            foreach ($attrs as $attr) {
-                if (
-                    stripos($attr->name, 'date') !== false
-                    || stripos($attr->name, 'created') !== false
-                    || stripos($attr->name, 'updated') !== false
-                ) {
-                    return true;
-                }
-            }
-            return false;
-        };
+    public function useDatePicker(){
 
-        if ($attribute !== null) {
-            return $use([$attribute]);
-        } else {
-            return $use($this->getTableSchema()->columns);
+        foreach ($this->getTableSchema()->columns as $column) {
+            if ($column->type === 'date') {
+                return true;
+            }
         }
+
+        return false;
     }
 }

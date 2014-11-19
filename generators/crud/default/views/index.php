@@ -58,9 +58,12 @@ if (($tableSchema = $generator->getTableSchema()) === false) {
         } else {
             $col = "'$column->name:$format'";
         }
-        if (++$count < 6) {
+        if (++$count < 6 && $column->type !== 'text') {
             echo "            " . $col . ",\n";
         } else {
+            if ($column->type === 'text') {
+                $count--;
+            }
             echo "            //" . $col . ",\n";
         }
     }
