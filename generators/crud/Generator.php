@@ -5,6 +5,7 @@ use Yii;
 use yii\base\NotSupportedException;
 use yii\db\ColumnSchema;
 use yii\db\mysql\Schema;
+use yii\gii\CodeFile;
 use yii\helpers\Inflector;
 use yii\helpers\StringHelper;
 use yii\helpers\VarDumper;
@@ -26,6 +27,10 @@ class Generator extends \yii\gii\generators\crud\Generator
      * @var string db connection
      */
     public $db = 'db';
+    /**
+     * @var bool add this crud in menu
+     */
+    public $addInMenu = true;
 
     /**
      * @param int $plural required plural
@@ -48,6 +53,7 @@ class Generator extends \yii\gii\generators\crud\Generator
     {
         return array_merge(parent::rules(), [
             [['russianNames'], 'safe'],
+            [['addInMenu'], 'boolean'],
         ]);
     }
 
@@ -59,7 +65,8 @@ class Generator extends \yii\gii\generators\crud\Generator
         return array_merge(parent::attributeLabels(), [
             'modelClass' => 'Common Model Class',
             'searchModelClass' => 'Backend Model Class',
-            'russianNames' => 'Russian Model Names'
+            'russianNames' => 'Russian Model Names',
+            'addInMenu' => 'Add in menu',
         ]);
     }
 
@@ -74,6 +81,7 @@ class Generator extends \yii\gii\generators\crud\Generator
             'searchModelClass' => 'This is the name of the backend model class to be generated. You should provide a fully
                 qualified namespaced class name, e.g., <code>backend\models\Post</code>.',
             'russianNames' => 'This is the russian name of model, as <code>Статья Статьи Статью</code>',
+            'addInMenu' => 'Add this controller in menu',
         ]);
     }
 
@@ -360,6 +368,70 @@ class Generator extends \yii\gii\generators\crud\Generator
         } else {
             return 'text';
         }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function generate()
+    {
+        $controllerFile = Yii::getAlias('@' . str_replace('\\', '/', ltrim($this->controllerClass, '\\')) . '.php');
+
+        $files = [
+            new CodeFile($controllerFile, $this->render('controller.php')),
+        ];
+
+        if (!empty($this->searchModelClass)) {
+            $searchModel = Yii::getAlias('@' . str_replace('\\', '/', ltrim($this->searchModelClass, '\\') . '.php'));
+            $files[] = new CodeFile($searchModel, $this->render('search.php'));
+        }
+
+        $viewPath = $this->getViewPath();
+        $templatePath = $this->getTemplatePath() . '/views';
+        foreach (scandir($templatePath) as $file) {
+            if (empty($this->searchModelClass) && $file === '_search.php') {
+                continue;
+            }
+            if (is_file($templatePath . '/' . $file) && pathinfo($file, PATHINFO_EXTENSION) === 'php') {
+                $files[] = new CodeFile("$viewPath/$file", $this->render("views/$file"));
+            }
+        }
+
+        if ($this->addInMenu) {
+            $files[] = $this->addInMenu($this->controllerId, $this->getRussianName(self::RUSSIAN_INDEX));
+        }
+
+        return $files;
+    }
+
+    public function addInMenu($controller, $name)
+    {
+        $menuFile = Yii::getAlias('@backend/views/layouts/_menu.php');
+        $content = file_get_contents($menuFile);
+        $itemsPos  = strpos($content, 'items');
+        $bracketPos = strpos($content, '[', $itemsPos);
+        $openBrackets = 1;
+        $closedBrackets = 0;
+        $penultimateBracketPos = 0;
+        while ($openBrackets != $closedBrackets) {
+            $char = substr($content, $bracketPos + 1, 1);
+            if ($char === '[') {
+                $openBrackets++;
+            } elseif ($char === ']') {
+                $closedBrackets++;
+                $penultimateBracketPos = $bracketPos;
+            }
+            $bracketPos++;
+        }
+        $newItem = "     [\r\n            'label' => '"
+            . $name
+            . "',\r\n            'url' => ['/"
+            . $controller
+            . "'],\r\n            'icon' => 'fa-dashboard',\r\n            'active' => Yii::\$app->controller->id == '"
+            . $controller
+            . "',\r\n        ],\r\n    "
+            . substr($content, $bracketPos);
+        return new CodeFile($menuFile, substr_replace($content, $newItem, $penultimateBracketPos));
     }
 
     /**
