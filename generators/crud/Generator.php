@@ -42,7 +42,12 @@ class Generator extends \yii\gii\generators\crud\Generator
         if (isset($names[$plural])) {
             return $names[$plural];
         } else {
-            return $this->generateString(Inflector::pluralize(Inflector::camel2words(StringHelper::basename($this->modelClass))));
+            switch ($plural) {
+                case self::RUSSIAN_INDEX:
+                    return Inflector::pluralize(Inflector::camel2words(StringHelper::basename($this->modelClass)));
+                default:
+                    return Inflector::camel2words(StringHelper::basename($this->modelClass));
+            }
         }
     }
 
