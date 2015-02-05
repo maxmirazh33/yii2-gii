@@ -7,6 +7,7 @@
  */
 
 use yii\helpers\StringHelper;
+use yii\helpers\ArrayHelper;
 
 $modelClass = StringHelper::basename($generator->modelClass);
 $searchModelClass = StringHelper::basename($generator->searchModelClass);
@@ -17,6 +18,8 @@ $searchRules = $generator->generateSearchRules();
 $rules = $generator->generateRules();
 $searchConditions = $generator->generateSearchConditions();
 $relations = $generator->generateRelations();
+$manyManyRelations = $generator->generateManyManyRelations();
+$issetManyMany = $generator->issetManyMany();
 
 echo "<?php\n";
 ?>
@@ -30,8 +33,14 @@ use yii\base\Model;
 use maxmirazh33\image\Behavior as ImageBehavior;
 <?php endif; ?>
 <?php foreach ($relations as $rel): ?>
-use common\models\<?= $rel[0] ?>;
+use common\models\<?= $rel['className'] ?>;
 <?php endforeach; ?>
+<?php if ($issetManyMany): ?>
+<?php foreach ($generator->generateManyManyRelations() as $rel): ?>
+use common\models\<?= $rel['className'] ?>;
+<?php endforeach; ?>
+use voskobovich\behaviors\ManyToManyBehavior;
+<?php endif; ?>
 
 class <?= $searchModelClass ?> extends \<?= $generator->modelClass . "\n" ?>
 {
@@ -58,14 +67,15 @@ class <?= $searchModelClass ?> extends \<?= $generator->modelClass . "\n" ?>
         );
     }
 
-<?php if ($generator->useImageWidget()): ?>
+<?php if ($generator->useBehaviors()): ?>
     /**
      * @inheritdoc
      */
     public function behaviors()
     {
         return [
-            'imageUpload' => [
+<?php if ($generator->useImageWidget()): ?>
+            [
                 'class' => ImageBehavior::className(),
                 'attributes' => [
 <?php foreach ($generator->getTableSchema()->columnNames as $column): ?>
@@ -75,7 +85,35 @@ class <?= $searchModelClass ?> extends \<?= $generator->modelClass . "\n" ?>
 <?php endforeach; ?>
                 ],
             ],
+<?php endif; ?>
+<?php if ($issetManyMany): ?>
+            [
+                'class' => ManyToManyBehavior::className(),
+                'relations' => [
+<?php foreach ($manyManyRelations as $rel): ?>
+                    '<?= mb_strtolower($rel['className']) ?>_list' => '<?= mb_strtolower($rel['relationName']) ?>',
+<?php endforeach; ?>
+                ],
+            ],
+<?php endif; ?>
         ];
+    }
+<?php endif; ?>
+
+<?php if ($issetManyMany): ?>
+    /**
+     * @inheritdoc
+     */
+    public function attributeLabels()
+    {
+        return ArrayHelper::merge(
+            parent::attributeLabels(),
+            [
+<?php foreach ($manyManyRelations as $rel): ?>
+                '<?= mb_strtolower($rel['className']) . '_list' ?>' => '<?= $rel['relationName'] ?>',
+<?php endforeach; ?>
+            ]
+        );
     }
 <?php endif; ?>
 
@@ -102,14 +140,14 @@ class <?= $searchModelClass ?> extends \<?= $generator->modelClass . "\n" ?>
 
         return $dataProvider;
     }
-<?php foreach ($relations as $rel): ?>
+<?php foreach (ArrayHelper::merge($relations, $manyManyRelations) as $rel): ?>
 
     /**
-    * @return array as idAttribute => titleAttribute for <?= $rel[0] ?> relation models
+    * @return array as idAttribute => titleAttribute for <?= $rel['className'] ?> relation models
     */
-    public static function get<?= $rel[1] ?>ForDropdown()
+    public static function get<?= $rel['relationName'] ?>ForDropdown()
     {
-    return ArrayHelper::map(<?= $rel[0] ?>::find()->all(), '<?= $rel[2] ?>', '<?= $rel[3] ?>');
+        return ArrayHelper::map(<?= $rel['className'] ?>::find()->all(), '<?= $rel['idAttr'] ?>', '<?= $rel['titleAttr'] ?>');
     }
 <?php endforeach; ?>
 }

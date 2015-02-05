@@ -30,6 +30,10 @@ class Generator extends \yii\gii\generators\crud\Generator
      * @var bool add this crud in menu
      */
     public $addInMenu = true;
+    /**
+     * @var bool add in form editable many-to-many relations
+     */
+    public $editManyMany = true;
 
     /**
      * @param int $plural required plural
@@ -71,6 +75,7 @@ class Generator extends \yii\gii\generators\crud\Generator
             'searchModelClass' => 'Backend Model Class',
             'russianNames' => 'Russian Model Names',
             'addInMenu' => 'Add in menu',
+            'editManyMany' => 'Add edit many-to-many',
         ]);
     }
 
@@ -86,6 +91,7 @@ class Generator extends \yii\gii\generators\crud\Generator
                 qualified namespaced class name, e.g., <code>backend\models\Post</code>.',
             'russianNames' => 'This is the russian name of model, as <code>Статья Статьи Статью</code>',
             'addInMenu' => 'Add this controller in menu',
+            'editManyMany' => 'Add edit many-to-many relations',
         ]);
     }
 
@@ -154,8 +160,8 @@ class Generator extends \yii\gii\generators\crud\Generator
             $relations = $this->generateRelations();
             $isRel = false;
             foreach ($relations as $rel) {
-                if ($column->name == $rel[4]) {
-                    $types['in'][] = [$rel[4], $rel[1]];
+                if ($column->name == $rel['foreignKey']) {
+                    $types['in'][] = [$rel['foreignKey'], $rel['relationName']];
                     $isRel = true;
                     break;
                 }
@@ -192,6 +198,11 @@ class Generator extends \yii\gii\generators\crud\Generator
                 }
             }
         }
+
+        foreach ($this->generateManyManyRelations() as $rel) {
+            $types['safe'][] = mb_strtolower($rel['className']) . '_list';
+        }
+
         $rules = [];
         foreach ($types as $type => $columns) {
             if ($type == 'date') {
@@ -338,8 +349,8 @@ class Generator extends \yii\gii\generators\crud\Generator
         $column = $tableSchema->columns[$attribute];
         $relations = $this->generateRelations();
         foreach ($relations as $rel) {
-            if ($rel[4] == $column->name) {
-                return "\$form->field(\$model, '$attribute')->dropDownList(\$model->get{$rel[1]}ForDropDown())";
+            if ($rel['foreignKey'] == $column->name) {
+                return "\$form->field(\$model, '$attribute')->dropDownList(\$model->get{$rel['relationName']}ForDropDown())";
             }
         }
         if ($this->isImage($column->name)) {
@@ -489,7 +500,7 @@ class Generator extends \yii\gii\generators\crud\Generator
 
         $relations = [];
         $table = $this->getTableSchema();
-        $tableName = $table->name;
+        $className = $this->generateClassName($table->name);
         foreach ($table->foreignKeys as $refs) {
             $hasMany = false;
             $fks = array_keys($refs);
@@ -506,7 +517,6 @@ class Generator extends \yii\gii\generators\crud\Generator
             if ($hasMany) {
                 $refTable = $refs[0];
                 unset($refs[0]);
-                $className = $this->generateClassName($table->name);
                 $refClassName = $this->generateClassName($refTable);
                 $relationName = $this->generateRelationName($relations, $className, $refTable, $refClassName, $hasMany);
                 $class = 'common\models\\' . $refClassName;
@@ -519,40 +529,13 @@ class Generator extends \yii\gii\generators\crud\Generator
                     }
                 }
                 $relations[] = [
-                    $refClassName,
-                    $relationName,
-                    $idAttr,
-                    $titleAttr,
-                    $fks[1],
+                    'className' => $refClassName,
+                    'relationName' => $relationName,
+                    'idAttr' => $idAttr,
+                    'titleAttr' => $titleAttr,
+                    'foreignKey' => $fks[1],
                 ];
             }
-        }
-
-        if (($fks = $this->checkPivotTable($table)) !== false) {
-            $table0 = $fks[$table->primaryKey[0]][0];
-            $table1 = $fks[$table->primaryKey[1]][0];
-            $className0 = $this->generateClassName($table0);
-            $className1 = $this->generateClassName($table1);
-
-            $link = $this->generateRelationLink([$fks[$table->primaryKey[1]][1] => $table->primaryKey[1]]);
-            $viaLink = $this->generateRelationLink([$table->primaryKey[0] => $fks[$table->primaryKey[0]][1]]);
-            $relationName = $this->generateRelationName($relations, $className0, $db->getTableSchema($table0),
-                $table->primaryKey[1], true);
-            $relations[$className0][$relationName] = [
-                "return \$this->hasMany($className1::className(), $link)->viaTable('" . $table->name . "', $viaLink);",
-                $className1,
-                true,
-            ];
-
-            $link = $this->generateRelationLink([$fks[$table->primaryKey[0]][1] => $table->primaryKey[0]]);
-            $viaLink = $this->generateRelationLink([$table->primaryKey[1] => $fks[$table->primaryKey[1]][1]]);
-            $relationName = $this->generateRelationName($relations, $className1, $db->getTableSchema($table1),
-                $table->primaryKey[0], true);
-            $relations[$className1][$relationName] = [
-                "return \$this->hasMany($className0::className(), $link)->viaTable('" . $table->name . "', $viaLink);",
-                $className0,
-                true,
-            ];
         }
 
         return $relations;
@@ -661,6 +644,52 @@ class Generator extends \yii\gii\generators\crud\Generator
         return Inflector::id2camel($className, '_');
     }
 
+    public function generateManyManyRelations()
+    {
+        if (!$this->editManyMany) {
+            return [];
+        }
+        $db = $this->getDbConnection();
+        $relations = [];
+        $table = $this->getTableSchema();
+        $className = $this->generateClassName($table->name);
+        foreach ($db->getSchema()->getTableSchemas() as $otherTable) {
+            if (($fks = $this->checkPivotTable($otherTable)) === false) {
+                continue;
+            }
+            $table0 = $fks[$otherTable->primaryKey[0]][0];
+            $table1 = $fks[$otherTable->primaryKey[1]][0];
+            if ($table0 == $table->name) {
+                $rel = $table1;
+            } elseif ($table1 == $table->name) {
+                $rel = $table0;
+            } else {
+                continue;
+            }
+
+            $refClassName = $this->generateClassName($rel);
+            $relationName = $this->generateRelationName($relations, $className, $rel, $refClassName, true);
+            $class = 'common\models\\' . $refClassName;
+            $idAttr = $class::getTableSchema()->primaryKey[0];
+            $titleAttr = 'id';
+            foreach($class::getTableSchema()->columns as $column) {
+                if (preg_match('/^(name|title)$/i', $column->name)) {
+                    $titleAttr = $column->name;
+                    break;
+                }
+            }
+            $relations[] = [
+                'className' => $refClassName,
+                'relationName' => $relationName,
+                'idAttr' => $idAttr,
+                'titleAttr' => $titleAttr,
+                'foreignKey' => $fks[1],
+            ];
+        }
+
+        return $relations;
+    }
+
     /**
      * Check need use ImperaviWidget
      * @return bool
@@ -705,5 +734,25 @@ class Generator extends \yii\gii\generators\crud\Generator
         }
 
         return false;
+    }
+
+    /**
+     * Check isset many-to-many relations
+     * @return bool
+     */
+    public function issetManyMany(){
+        if (!$this->editManyMany) {
+            return false;
+        }
+        return count($this->generateManyManyRelations()) > 0;
+    }
+
+    /**
+     * Check need use behaviors
+     * @return bool
+     */
+    public function useBehaviors()
+    {
+        return $this->useImageWidget() || ($this->issetManyMany() && $this->editManyMany);
     }
 }

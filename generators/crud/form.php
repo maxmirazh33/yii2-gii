@@ -12,5 +12,6 @@ echo $form->field($generator, 'viewPath');
 echo $form->field($generator, 'russianNames');
 echo $form->field($generator, 'baseControllerClass');
 echo $form->field($generator, 'addInMenu')->checkbox();
+echo $form->field($generator, 'editManyMany')->checkbox();
 echo $form->field($generator, 'enableI18N')->checkbox();
 echo $form->field($generator, 'messageCategory');

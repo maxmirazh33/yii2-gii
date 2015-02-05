@@ -44,6 +44,9 @@ use maxmirazh33\image\Widget as ImageWidget;
         echo "    <?= " . $generator->generateActiveField($attribute) . " ?>\n\n";
     }
 } ?>
+<?php foreach ($generator->generateManyManyRelations() as $rel) {
+        echo "    <?= \$form->field(\$model, '" . mb_strtolower($rel['className']) . "_list')->dropDownList(\$model->get{$rel['relationName']}ForDropdown(), ['multiple' => true]) ?>\n\n";
+} ?>
     <div class="form-group">
         <?= "<?= " ?>Html::submitButton($model->isNewRecord ? <?= $generator->generateString('Добавить') ?> : <?= $generator->generateString('Сохранить') ?>, ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
     </div>
