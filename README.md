@@ -2,6 +2,11 @@ Gii
 ===
 Extended gii for maxmirazh33\yii2-app-skeleton
 
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/maxmirazh33/yii2-gii/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/maxmirazh33/yii2-gii/?branch=master)
+[![Code Climate](https://codeclimate.com/github/maxmirazh33/yii2-gii/badges/gpa.svg)](https://codeclimate.com/github/maxmirazh33/yii2-gii)
+[![Dependency Status](https://www.versioneye.com/user/projects/54d1fb3b3ca0840b19000106/badge.svg?style=flat)](https://www.versioneye.com/user/projects/54d1fb3b3ca0840b19000106)
+[![Build Status](https://scrutinizer-ci.com/g/maxmirazh33/yii2-gii/badges/build.png?b=master)](https://scrutinizer-ci.com/g/maxmirazh33/yii2-gii/build-status/master)
+
 Installation
 ------------
 
