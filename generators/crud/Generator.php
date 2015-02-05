@@ -150,34 +150,46 @@ class Generator extends \yii\gii\generators\crud\Generator
             if (!$column->allowNull && $column->defaultValue === null && !$this->isImage($column->name)) {
                 $types['required'][] = $column->name;
             }
-            switch ($column->type) {
-                case Schema::TYPE_INTEGER:
-                case Schema::TYPE_BIGINT:
-                    $types['integer'][] = $column->name;
+
+            $relations = $this->generateRelations();
+            $isRel = false;
+            foreach ($relations as $rel) {
+                if ($column->name == $rel[4]) {
+                    $types['in'][] = [$rel[4], $rel[1]];
+                    $isRel = true;
                     break;
-                case Schema::TYPE_SMALLINT:
-                case Schema::TYPE_BOOLEAN:
-                    $types['boolean'][] = $column->name;
-                    break;
-                case Schema::TYPE_FLOAT:
-                case Schema::TYPE_DECIMAL:
-                case Schema::TYPE_MONEY:
-                    $types['number'][] = $column->name;
-                    break;
-                case Schema::TYPE_DATE:
-                case Schema::TYPE_TIME:
-                case Schema::TYPE_DATETIME:
-                case Schema::TYPE_TIMESTAMP:
-                    $types['date'][] = $column->name;
-                    break;
-                default: // strings
-                    if (!$this->isImage($column->name)) {
-                        if ($column->size > 0) {
-                            $lengths[$column->size][] = $column->name;
-                        } else {
-                            $types['string'][] = $column->name;
+                }
+            }
+            if (!$isRel) {
+                switch ($column->type) {
+                    case Schema::TYPE_INTEGER:
+                    case Schema::TYPE_BIGINT:
+                        $types['integer'][] = $column->name;
+                        break;
+                    case Schema::TYPE_SMALLINT:
+                    case Schema::TYPE_BOOLEAN:
+                        $types['boolean'][] = $column->name;
+                        break;
+                    case Schema::TYPE_FLOAT:
+                    case Schema::TYPE_DECIMAL:
+                    case Schema::TYPE_MONEY:
+                        $types['number'][] = $column->name;
+                        break;
+                    case Schema::TYPE_DATE:
+                    case Schema::TYPE_TIME:
+                    case Schema::TYPE_DATETIME:
+                    case Schema::TYPE_TIMESTAMP:
+                        $types['date'][] = $column->name;
+                        break;
+                    default: // strings
+                        if (!$this->isImage($column->name)) {
+                            if ($column->size > 0) {
+                                $lengths[$column->size][] = $column->name;
+                            } else {
+                                $types['string'][] = $column->name;
+                            }
                         }
-                    }
+                }
             }
         }
         $rules = [];
@@ -185,6 +197,10 @@ class Generator extends \yii\gii\generators\crud\Generator
             if ($type == 'date') {
                 $rules[] = "[['" . implode("', '",
                         $columns) . "'], '$type', 'format' => 'php:Y-m-d', 'except' => ['search']]";
+            } elseif ($type == 'in') {
+                foreach ($columns as $col) {
+                    $rules[] = "[['" . $col[0] . "'], 'in', 'range' => static::get" . $col[1] . "ForDropdown(), 'except' => ['search']]";
+                }
             } else {
                 $rules[] = "[['" . implode("', '", $columns) . "'], '$type', 'except' => ['search']]";
             }
@@ -320,6 +336,12 @@ class Generator extends \yii\gii\generators\crud\Generator
             }
         }
         $column = $tableSchema->columns[$attribute];
+        $relations = $this->generateRelations();
+        foreach ($relations as $rel) {
+            if ($rel[4] == $column->name) {
+                return "\$form->field(\$model, '$attribute')->dropDownList(\$model->get{$rel[1]}ForDropDown())";
+            }
+        }
         if ($this->isImage($column->name)) {
             return "\$form->field(\$model, '$attribute')->widget(ImageWidget::className())";
         } elseif ($column->phpType === 'boolean' || $column->dbType === 'tinyint(1)') {
@@ -432,7 +454,7 @@ class Generator extends \yii\gii\generators\crud\Generator
     {
         $menuFile = Yii::getAlias('@backend/views/layouts/_menu.php');
         $content = file_get_contents($menuFile);
-        $itemsPos  = strpos($content, 'items');
+        $itemsPos = strpos($content, 'items');
         $bracketPos = strpos($content, '[', $itemsPos);
         $openBrackets = 1;
         $closedBrackets = 0;
@@ -459,6 +481,187 @@ class Generator extends \yii\gii\generators\crud\Generator
     }
 
     /**
+     * @return array the generated relation declarations
+     */
+    public function generateRelations()
+    {
+        $db = $this->getDbConnection();
+
+        $relations = [];
+        $table = $this->getTableSchema();
+        $tableName = $table->name;
+        foreach ($table->foreignKeys as $refs) {
+            $hasMany = false;
+            $fks = array_keys($refs);
+            if (count($table->primaryKey) > count($fks)) {
+                $hasMany = true;
+            } else {
+                foreach ($fks as $key) {
+                    if (!in_array($key, $table->primaryKey, true)) {
+                        $hasMany = true;
+                        break;
+                    }
+                }
+            }
+            if ($hasMany) {
+                $refTable = $refs[0];
+                unset($refs[0]);
+                $className = $this->generateClassName($table->name);
+                $refClassName = $this->generateClassName($refTable);
+                $relationName = $this->generateRelationName($relations, $className, $refTable, $refClassName, $hasMany);
+                $class = 'common\models\\' . $refClassName;
+                $idAttr = $class::getTableSchema()->primaryKey[0];
+                $titleAttr = 'id';
+                foreach($class::getTableSchema()->columns as $column) {
+                    if (preg_match('/^(name|title)$/i', $column->name)) {
+                        $titleAttr = $column->name;
+                        break;
+                    }
+                }
+                $relations[] = [
+                    $refClassName,
+                    $relationName,
+                    $idAttr,
+                    $titleAttr,
+                    $fks[1],
+                ];
+            }
+        }
+
+        if (($fks = $this->checkPivotTable($table)) !== false) {
+            $table0 = $fks[$table->primaryKey[0]][0];
+            $table1 = $fks[$table->primaryKey[1]][0];
+            $className0 = $this->generateClassName($table0);
+            $className1 = $this->generateClassName($table1);
+
+            $link = $this->generateRelationLink([$fks[$table->primaryKey[1]][1] => $table->primaryKey[1]]);
+            $viaLink = $this->generateRelationLink([$table->primaryKey[0] => $fks[$table->primaryKey[0]][1]]);
+            $relationName = $this->generateRelationName($relations, $className0, $db->getTableSchema($table0),
+                $table->primaryKey[1], true);
+            $relations[$className0][$relationName] = [
+                "return \$this->hasMany($className1::className(), $link)->viaTable('" . $table->name . "', $viaLink);",
+                $className1,
+                true,
+            ];
+
+            $link = $this->generateRelationLink([$fks[$table->primaryKey[0]][1] => $table->primaryKey[0]]);
+            $viaLink = $this->generateRelationLink([$table->primaryKey[1] => $fks[$table->primaryKey[1]][1]]);
+            $relationName = $this->generateRelationName($relations, $className1, $db->getTableSchema($table1),
+                $table->primaryKey[0], true);
+            $relations[$className1][$relationName] = [
+                "return \$this->hasMany($className0::className(), $link)->viaTable('" . $table->name . "', $viaLink);",
+                $className0,
+                true,
+            ];
+        }
+
+        return $relations;
+    }
+
+    /**
+     * Checks if the given table is a junction table.
+     * For simplicity, this method only deals with the case where the pivot contains two PK columns,
+     * each referencing a column in a different table.
+     * @param \yii\db\TableSchema the table being checked
+     * @return array|boolean the relevant foreign key constraint information if the table is a junction table,
+     * or false if the table is not a junction table.
+     */
+    protected function checkPivotTable($table)
+    {
+        $pk = $table->primaryKey;
+        if (count($pk) !== 2) {
+            return false;
+        }
+        $fks = [];
+        foreach ($table->foreignKeys as $refs) {
+            if (count($refs) === 2) {
+                if (isset($refs[$pk[0]])) {
+                    $fks[$pk[0]] = [$refs[0], $refs[$pk[0]]];
+                } elseif (isset($refs[$pk[1]])) {
+                    $fks[$pk[1]] = [$refs[0], $refs[$pk[1]]];
+                }
+            }
+        }
+        if (count($fks) === 2 && $fks[$pk[0]][0] !== $fks[$pk[1]][0]) {
+            return $fks;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Generates the link parameter to be used in generating the relation declaration.
+     * @param array $refs reference constraint
+     * @return string the generated link parameter.
+     */
+    protected function generateRelationLink($refs)
+    {
+        $pairs = [];
+        foreach ($refs as $a => $b) {
+            $pairs[] = "'$a' => '$b'";
+        }
+
+        return '[' . implode(', ', $pairs) . ']';
+    }
+
+    /**
+     * Generate a relation name for the specified table and a base name.
+     * @param array $relations the relations being generated currently.
+     * @param string $className the class name that will contain the relation declarations
+     * @param \yii\db\TableSchema $table the table schema
+     * @param string $key a base name that the relation name may be generated from
+     * @param boolean $multiple whether this is a has-many relation
+     * @return string the relation name
+     */
+    protected function generateRelationName($relations, $className, $table, $key, $multiple)
+    {
+        if (!empty($key) && substr_compare($key, 'id', -2, 2, true) === 0 && strcasecmp($key, 'id')) {
+            $key = rtrim(substr($key, 0, -2), '_');
+        }
+        if ($multiple) {
+            $key = Inflector::pluralize($key);
+        }
+        $name = $rawName = Inflector::id2camel($key, '_');
+        $i = 0;
+        while (isset($table->columns[lcfirst($name)])) {
+            $name = $rawName . ($i++);
+        }
+        while (isset($relations[$className][lcfirst($name)])) {
+            $name = $rawName . ($i++);
+        }
+
+        return $name;
+    }
+
+    /**
+     * Generates a class name from the specified table name.
+     * @param string $tableName the table name (which may contain schema prefix)
+     * @return string the generated class name
+     */
+    protected function generateClassName($tableName)
+    {
+
+        if (($pos = strrpos($tableName, '.')) !== false) {
+            $tableName = substr($tableName, $pos + 1);
+        }
+
+        $db = $this->getDbConnection();
+        $patterns = [];
+        $patterns[] = "/^{$db->tablePrefix}(.*?)$/";
+        $patterns[] = "/^(.*?){$db->tablePrefix}$/";
+
+        $className = $tableName;
+        foreach ($patterns as $pattern) {
+            if (preg_match($pattern, $tableName, $matches)) {
+                $className = $matches[1];
+                break;
+            }
+        }
+
+        return Inflector::id2camel($className, '_');
+    }
+
+    /**
      * Check need use ImperaviWidget
      * @return bool
      */
@@ -477,7 +680,8 @@ class Generator extends \yii\gii\generators\crud\Generator
      * Check need use DatePicker
      * @return bool
      */
-    public function useDatePicker(){
+    public function useDatePicker()
+    {
 
         foreach ($this->getTableSchema()->columns as $column) {
             if ($column->type === 'date') {
@@ -492,7 +696,8 @@ class Generator extends \yii\gii\generators\crud\Generator
      * Check need use maxmirazh33\image\Widget
      * @return bool
      */
-    public function useImageWidget(){
+    public function useImageWidget()
+    {
         foreach ($this->getTableSchema()->columns as $column) {
             if ($this->isImage($column->name)) {
                 return true;

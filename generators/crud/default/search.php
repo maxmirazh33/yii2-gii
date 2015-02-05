@@ -16,6 +16,7 @@ if ($modelClass === $searchModelClass) {
 $searchRules = $generator->generateSearchRules();
 $rules = $generator->generateRules();
 $searchConditions = $generator->generateSearchConditions();
+$relations = $generator->generateRelations();
 
 echo "<?php\n";
 ?>
@@ -28,6 +29,9 @@ use yii\base\Model;
 <?php if ($generator->useImageWidget()): ?>
 use maxmirazh33\image\Behavior as ImageBehavior;
 <?php endif; ?>
+<?php foreach ($relations as $rel): ?>
+use common\models\<?= $rel[0] ?>;
+<?php endforeach; ?>
 
 class <?= $searchModelClass ?> extends \<?= $generator->modelClass . "\n" ?>
 {
@@ -98,4 +102,14 @@ class <?= $searchModelClass ?> extends \<?= $generator->modelClass . "\n" ?>
 
         return $dataProvider;
     }
+<?php foreach ($relations as $rel): ?>
+
+    /**
+    * @return array as idAttribute => titleAttribute for <?= $rel[0] ?> relation models
+    */
+    public static function get<?= $rel[1] ?>ForDropdown()
+    {
+    return ArrayHelper::map(<?= $rel[0] ?>::find()->all(), '<?= $rel[2] ?>', '<?= $rel[3] ?>');
+    }
+<?php endforeach; ?>
 }
