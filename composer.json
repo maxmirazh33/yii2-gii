@@ -4,7 +4,9 @@
     "type": "yii2-extension",
     "keywords": [
         "yii2",
-        "extension"
+        "extension",
+        "gii",
+        "code generator"
     ],
     "support": {
         "issues": "https://github.com/maxmirazh33/yii2-gii/issues?state=open",
@@ -18,8 +20,8 @@
         }
     ],
     "require": {
-        "yiisoft/yii2": "*",
-        "yiisoft/yii2-gii": "*"
+        "yiisoft/yii2": "2.*",
+        "yiisoft/yii2-gii": "2.*"
     },
     "autoload": {
         "psr-4": {

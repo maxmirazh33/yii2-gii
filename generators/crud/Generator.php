@@ -148,7 +148,7 @@ class Generator extends \yii\gii\generators\crud\Generator
             if ($column->autoIncrement) {
                 continue;
             }
-            if (!$column->allowNull && $column->defaultValue === null) {
+            if (!$column->allowNull && $column->defaultValue === null && !$this->isImage($column->name)) {
                 $types['required'][] = $column->name;
             }
             switch ($column->type) {
@@ -172,10 +172,12 @@ class Generator extends \yii\gii\generators\crud\Generator
                     $types['date'][] = $column->name;
                     break;
                 default: // strings
-                    if ($column->size > 0) {
-                        $lengths[$column->size][] = $column->name;
-                    } else {
-                        $types['string'][] = $column->name;
+                    if (!$this->isImage($column->name)) {
+                        if ($column->size > 0) {
+                            $lengths[$column->size][] = $column->name;
+                        } else {
+                            $types['string'][] = $column->name;
+                        }
                     }
             }
         }
@@ -217,6 +219,19 @@ class Generator extends \yii\gii\generators\crud\Generator
         }
 
         return $rules;
+    }
+
+    /**
+     * @param string $name
+     * @return bool
+     */
+    public function isImage($name)
+    {
+        if (preg_match('/^(image|img|photo|avatar|logo)$/i', $name)) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -268,13 +283,16 @@ class Generator extends \yii\gii\generators\crud\Generator
     }
 
     /**
-     * @return string the action view file path
+     * @inheritdoc
      */
     public function getViewPath()
     {
         return Yii::getAlias('@backend') . '/views/' . $this->getControllerID();
     }
 
+    /**
+     * @inheritdoc
+     */
     public function getNameAttribute()
     {
         foreach ($this->getColumnNames() as $name) {
@@ -290,9 +308,7 @@ class Generator extends \yii\gii\generators\crud\Generator
     }
 
     /**
-     * Generates code for active field
-     * @param string $attribute
-     * @return string
+     * @inheritdoc
      */
     public function generateActiveField($attribute)
     {
@@ -305,7 +321,9 @@ class Generator extends \yii\gii\generators\crud\Generator
             }
         }
         $column = $tableSchema->columns[$attribute];
-        if ($column->phpType === 'boolean' || $column->dbType === 'tinyint(1)') {
+        if ($this->isImage($column->name)) {
+            return "\$form->field(\$model, '$attribute')->widget(ImageWidget::className())";
+        } elseif ($column->phpType === 'boolean' || $column->dbType === 'tinyint(1)') {
             return "\$form->field(\$model, '$attribute')->checkbox()";
         } elseif ($column->type === 'text') {
             return "\$form->field(\$model, '$attribute')->widget(ImperaviWidget::className())";
@@ -335,9 +353,7 @@ class Generator extends \yii\gii\generators\crud\Generator
     }
 
     /**
-     * Generates code for active search field
-     * @param string $attribute
-     * @return string
+     * @inheritdoc
      */
     public function generateActiveSearchField($attribute)
     {
@@ -354,9 +370,7 @@ class Generator extends \yii\gii\generators\crud\Generator
     }
 
     /**
-     * Generates column format
-     * @param \yii\db\ColumnSchema $column
-     * @return string
+     * @inheritdoc
      */
     public function generateColumnFormat($column)
     {
@@ -409,6 +423,12 @@ class Generator extends \yii\gii\generators\crud\Generator
         return $files;
     }
 
+    /**
+     * Add item in menu layout
+     * @param string $controller controller name
+     * @param string $name menu item label
+     * @return CodeFile
+     */
     public function addInMenu($controller, $name)
     {
         $menuFile = Yii::getAlias('@backend/views/layouts/_menu.php');
@@ -462,6 +482,20 @@ class Generator extends \yii\gii\generators\crud\Generator
 
         foreach ($this->getTableSchema()->columns as $column) {
             if ($column->type === 'date') {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Check need use maxmirazh33\image\Widget
+     * @return bool
+     */
+    public function useImageWidget(){
+        foreach ($this->getTableSchema()->columns as $column) {
+            if ($this->isImage($column->name)) {
                 return true;
             }
         }

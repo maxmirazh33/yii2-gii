@@ -25,6 +25,9 @@ use Yii;
 use yii\helpers\ArrayHelper;
 use yii\data\ActiveDataProvider;
 use yii\base\Model;
+<?php if ($generator->useImageWidget()): ?>
+use maxmirazh33\image\Behavior as ImageBehavior;
+<?php endif; ?>
 
 class <?= $searchModelClass ?> extends \<?= $generator->modelClass . "\n" ?>
 {
@@ -50,6 +53,27 @@ class <?= $searchModelClass ?> extends \<?= $generator->modelClass . "\n" ?>
             ['search' => ['<?= implode("', '", $generator->getColumnNames()) ?>'],]
         );
     }
+
+<?php if ($generator->useImageWidget()): ?>
+    /**
+     * @inheritdoc
+     */
+    public function behaviors()
+    {
+        return [
+            'imageUpload' => [
+                'class' => ImageBehavior::className(),
+                'attributes' => [
+<?php foreach ($generator->getTableSchema()->columnNames as $column): ?>
+<?php if ($generator->isImage($column)): ?>
+                    '<?= $column ?>' => [],
+<?php endif; ?>
+<?php endforeach; ?>
+                ],
+            ],
+        ];
+    }
+<?php endif; ?>
 
     /**
      * Creates data provider instance with search query applied

@@ -30,6 +30,9 @@ use backend\components\ImperaviWidget;
 <?php if ($generator->useDatePicker()): ?>
 use kartik\date\DatePicker;
 <?php endif; ?>
+<?php if ($generator->useImageWidget()): ?>
+use maxmirazh33\image\Widget as ImageWidget;
+<?php endif; ?>
 ?>
 
 <div class="<?= Inflector::camel2id(StringHelper::basename($generator->modelClass)) ?>-form">
