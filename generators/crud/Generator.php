@@ -3,7 +3,6 @@ namespace maxmirazh33\gii\generators\crud;
 
 use Yii;
 use yii\base\NotSupportedException;
-use yii\db\ColumnSchema;
 use yii\db\mysql\Schema;
 use yii\gii\CodeFile;
 use yii\helpers\Inflector;
