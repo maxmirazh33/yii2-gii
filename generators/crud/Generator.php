@@ -417,7 +417,7 @@ class Generator extends \yii\gii\generators\crud\Generator
         }
 
         if ($this->addInMenu) {
-            $files[] = $this->addInMenu($this->controllerId, $this->getRussianName(self::RUSSIAN_INDEX));
+            $files[] = $this->addInMenu($this->getControllerID(), $this->getRussianName(self::RUSSIAN_INDEX));
         }
 
         return $files;
