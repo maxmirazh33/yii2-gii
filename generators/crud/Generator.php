@@ -199,7 +199,7 @@ class Generator extends \yii\gii\generators\crud\Generator
                         $columns) . "'], '$type', 'format' => 'php:Y-m-d', 'except' => ['search']]";
             } elseif ($type == 'in') {
                 foreach ($columns as $col) {
-                    $rules[] = "[['" . $col[0] . "'], 'in', 'range' => static::get" . $col[1] . "ForDropdown(), 'except' => ['search']]";
+                    $rules[] = "[['" . $col[0] . "'], 'in', 'range' => array_keys(static::get" . $col[1] . "ForDropdown()), 'except' => ['search']]";
                 }
             } else {
                 $rules[] = "[['" . implode("', '", $columns) . "'], '$type', 'except' => ['search']]";
