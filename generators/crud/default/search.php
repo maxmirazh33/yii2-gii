@@ -63,7 +63,7 @@ class <?= $searchModelClass ?> extends \<?= $generator->modelClass . "\n" ?>
     {
         return ArrayHelper::merge(
             Model::scenarios(),
-            ['search' => ['<?= implode("', '", $generator->getColumnNames()) ?>'],]
+            ['search' => ['<?= implode("', '", $generator->getColumnNames()) ?>']]
         );
     }
 

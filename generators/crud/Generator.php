@@ -650,6 +650,37 @@ class Generator extends \yii\gii\generators\crud\Generator
     }
 
     /**
+     * @inheritdoc
+     */
+    public function generateString($string = '', $placeholders = [])
+    {
+        $string = addslashes($string);
+        if ($this->enableI18N) {
+            // If there are placeholders, use them
+            if (!empty($placeholders)) {
+                $ph = ', ' . VarDumper::export($placeholders);
+            } else {
+                $ph = '';
+            }
+            $str = "Yii::t('" . $this->messageCategory . "', '" . $string . "'" . $ph . ")";
+        } else {
+            $string = Yii::t('maxmirazh33-gii/crud', $string);
+            // No I18N, replace placeholders by real words, if any
+            if (!empty($placeholders)) {
+                $phKeys = array_map(function($word) {
+                    return '{' . $word . '}';
+                }, array_keys($placeholders));
+                $phValues = array_values($placeholders);
+                $str = str_replace($phKeys, $phValues, $string);
+            } else {
+                // No placeholders, just the given string
+                $str = $string;
+            }
+        }
+        return $str;
+    }
+
+    /**
      * Check need use ImperaviWidget
      * @return bool
      */
