@@ -12,7 +12,7 @@ class Module extends \yii\gii\Module implements BootstrapInterface
     protected function coreGenerators()
     {
         return [
-            'model' => ['class' => 'yii\gii\generators\model\Generator'],
+            'model' => ['class' => 'maxmirazh33\gii\generators\model\Generator'],
             'crud' => ['class' => 'maxmirazh33\gii\generators\crud\Generator'],
             'controller' => ['class' => 'yii\gii\generators\controller\Generator'],
             'form' => ['class' => 'yii\gii\generators\form\Generator'],
