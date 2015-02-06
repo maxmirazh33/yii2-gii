@@ -4,6 +4,7 @@ namespace maxmirazh33\gii\generators\crud;
 use Yii;
 use yii\base\NotSupportedException;
 use yii\db\mysql\Schema;
+use yii\db\TableSchema;
 use yii\gii\CodeFile;
 use yii\helpers\Inflector;
 use yii\helpers\StringHelper;
@@ -451,8 +452,6 @@ class Generator extends \yii\gii\generators\crud\Generator
      */
     public function generateRelations()
     {
-        $db = $this->getDbConnection();
-
         $relations = [];
         $table = $this->getTableSchema();
         $className = $this->generateClassName($table->name);
@@ -476,13 +475,7 @@ class Generator extends \yii\gii\generators\crud\Generator
                 $relationName = $this->generateRelationName($relations, $className, $refTable, $refClassName, $hasMany);
                 $class = 'common\models\\' . $refClassName;
                 $idAttr = $class::getTableSchema()->primaryKey[0];
-                $titleAttr = 'id';
-                foreach($class::getTableSchema()->columns as $column) {
-                    if (preg_match('/^(name|title)$/i', $column->name)) {
-                        $titleAttr = $column->name;
-                        break;
-                    }
-                }
+                $titleAttr = $this->getNameAttribute($class::getTableSchema());
                 $relations[] = [
                     'className' => $refClassName,
                     'relationName' => $relationName,
@@ -494,6 +487,23 @@ class Generator extends \yii\gii\generators\crud\Generator
         }
 
         return $relations;
+    }
+
+    /**
+     * @param yii\db\TableSchema $schema
+     * @return string name attribute
+     */
+    public function getNameAttribute($schema = false)
+    {
+        if (!($schema instanceof TableSchema)) {
+            return parent::getNameAttribute();
+        }
+        foreach ($schema->columnNames as $name) {
+            if (!strcasecmp($name, 'name') || !strcasecmp($name, 'title')) {
+                return $name;
+            }
+        }
+        return $schema->primaryKey[0];
     }
 
     /**
@@ -627,12 +637,7 @@ class Generator extends \yii\gii\generators\crud\Generator
             $class = 'common\models\\' . $refClassName;
             $idAttr = $class::getTableSchema()->primaryKey[0];
             $titleAttr = 'id';
-            foreach($class::getTableSchema()->columns as $column) {
-                if (preg_match('/^(name|title)$/i', $column->name)) {
-                    $titleAttr = $column->name;
-                    break;
-                }
-            }
+            $titleAttr = $this->getNameAttribute($class::getTableSchema());
             $relations[] = [
                 'className' => $refClassName,
                 'relationName' => $relationName,
@@ -651,13 +656,7 @@ class Generator extends \yii\gii\generators\crud\Generator
      */
     public function useImperavi()
     {
-        foreach ($this->getTableSchema()->columns as $column) {
-            if ($column->type === 'text') {
-                return true;
-            }
-        }
-
-        return false;
+        return $this->issetType('text');
     }
 
     /**
@@ -667,13 +666,7 @@ class Generator extends \yii\gii\generators\crud\Generator
     public function useDatePicker()
     {
 
-        foreach ($this->getTableSchema()->columns as $column) {
-            if ($column->type === 'date') {
-                return true;
-            }
-        }
-
-        return false;
+        return ($this->issetType('date'));
     }
 
     /**
@@ -684,6 +677,21 @@ class Generator extends \yii\gii\generators\crud\Generator
     {
         foreach ($this->getTableSchema()->columns as $column) {
             if ($this->isImage($column->name)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param $type column type
+     * @return bool
+     */
+    protected function issetType($type)
+    {
+        foreach ($this->getTableSchema()->columns as $column) {
+            if ($column->type === $type) {
                 return true;
             }
         }
