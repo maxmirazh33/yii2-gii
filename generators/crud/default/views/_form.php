@@ -37,7 +37,7 @@ use maxmirazh33\image\Widget as ImageWidget;
 
 <div class="<?= Inflector::camel2id(StringHelper::basename($generator->modelClass)) ?>-form">
 
-    <?= "<?php " ?>$form = ActiveForm::begin(); ?>
+    <?= "<?php " ?>$form = ActiveForm::begin(<?= $generator->issetFiles() ? "['options' => ['enctype' => 'multipart/form-data']]" : '' ?>); ?>
 
 <?php foreach ($generator->getColumnNames() as $attribute) {
     if (in_array($attribute, $safeAttributes)) {

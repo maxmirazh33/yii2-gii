@@ -81,7 +81,7 @@ class <?= $searchModelClass ?> extends \<?= $generator->modelClass . "\n" ?>
                 'attributes' => [
 <?php foreach ($generator->getTableSchema()->columnNames as $column): ?>
 <?php if ($generator->isImage($column)): ?>
-                    '<?= $column ?>' => [],
+                    '<?= $column ?>',
 <?php endif; ?>
 <?php endforeach; ?>
                 ],

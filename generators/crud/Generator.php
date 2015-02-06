@@ -263,6 +263,19 @@ class Generator extends \yii\gii\generators\crud\Generator
     }
 
     /**
+     * @param string $name
+     * @return bool
+     */
+    public function isFile($name)
+    {
+        if (preg_match('/^(file|doc|attach|pdf|presentation)$/i', $name)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * @return \yii\db\Connection the DB connection as specified by [[db]].
      */
     protected function getDbConnection()
@@ -739,6 +752,21 @@ class Generator extends \yii\gii\generators\crud\Generator
             return false;
         }
         return count($this->generateManyManyRelations()) > 0;
+    }
+
+    /**
+     * Check isset files and need use multipart?form-data enctype
+     * @return bool
+     */
+    public function issetFiles()
+    {
+        foreach ($this->getTableSchema()->columns as $column) {
+            if ($this->isImage($column->name) || $this->isFile($column->name)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

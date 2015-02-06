@@ -54,7 +54,7 @@ if (($tableSchema = $generator->getTableSchema()) === false) {
         if ($format === 'text') {
             $col = "'$column->name'";
         } elseif ($format === 'boolean') {
-            $col = "['class' => 'yii\\grid\\DataColumn', 'attribute' => '$column->name', 'format' => 'boolean', 'filter' => [0 => '{$generator->generateString('No')}', 1 => '{$generator->generateString('Yes')}'']]";
+            $col = "['class' => 'yii\\grid\\DataColumn', 'attribute' => '$column->name', 'format' => 'boolean', 'filter' => [0 => '{$generator->generateString('No')}', 1 => '{$generator->generateString('Yes')}']]";
         } else {
             $col = "'$column->name:$format'";
         }
