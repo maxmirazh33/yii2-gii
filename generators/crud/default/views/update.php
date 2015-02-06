@@ -18,10 +18,10 @@ echo "<?php\n";
  * @var <?= ltrim($generator->searchModelClass, '\\') ?> $model
  */
 
-$this->title = $model-><?= $generator->getNameAttribute() ?> . ' | <?= $localName ?> | Панель управления | ' . Yii::$app->name;
+$this->title = $model-><?= $generator->getNameAttribute() ?> . ' | <?= $localName ?> | <?= $generator->generateString('Control panel') ?> | ' . Yii::$app->name;
 $this->params['breadcrumbs'][] = ['label' => '<?= $localName ?>', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $model-><?= $generator->getNameAttribute() ?>;
-$this->params['title'] = "Редактировать <?= mb_strtolower($generator->getLocalName(Generator::LOCAL_VIEW)) ?> <?= $generator->getNameAttribute() == 'id' ? '#$model->id' : "'\$model->" . $generator->getNameAttribute() . "'" ?>";
+$this->params['title'] = "<?= $generator->generateString('Edit') ?> <?= mb_strtolower($generator->getLocalName(Generator::LOCAL_ADD)) ?> <?= $generator->getNameAttribute() == 'id' ? '#$model->id' : "'\$model->" . $generator->getNameAttribute() . "'" ?>";
 ?>
 
 <div class="<?= Inflector::camel2id(StringHelper::basename($generator->modelClass)) ?>-update">

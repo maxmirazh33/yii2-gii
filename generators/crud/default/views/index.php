@@ -23,7 +23,7 @@ echo "<?php\n";
 use yii\helpers\Html;
 use <?= $generator->indexWidgetType === 'grid' ? "yii\\grid\\GridView" : "yii\\widgets\\ListView" ?>;
 
-$this->title = '<?= $localName ?> | Панель управления | ' . Yii::$app->name;
+$this->title = '<?= $localName ?> | <?= $generator->generateString('Control panel') ?> | ' . Yii::$app->name;
 $this->params['breadcrumbs'][] = '<?= $localName ?>';
 $this->params['title'] = '<?= $localName ?>';
 ?>
@@ -31,7 +31,7 @@ $this->params['title'] = '<?= $localName ?>';
 <div class="<?= Inflector::camel2id(StringHelper::basename($generator->modelClass)) ?>-index">
 
     <p>
-        <?= "<?= " ?>Html::a('Добавить', ['create'], ['class' => 'btn btn-success']) ?>
+        <?= "<?= " ?>Html::a('<?= $generator->generateString('Add') ?>', ['create'], ['class' => 'btn btn-success']) ?>
     </p>
 
     <?= "<?= " ?>GridView::widget([
@@ -54,7 +54,7 @@ if (($tableSchema = $generator->getTableSchema()) === false) {
         if ($format === 'text') {
             $col = "'$column->name'";
         } elseif ($format === 'boolean') {
-            $col = "['class' => 'yii\\grid\\DataColumn', 'attribute' => '$column->name', 'format' => 'boolean', 'filter' => [0 => 'Нет', 1 => 'Да']]";
+            $col = "['class' => 'yii\\grid\\DataColumn', 'attribute' => '$column->name', 'format' => 'boolean', 'filter' => [0 => '{$generator->generateString('No')}', 1 => '{$generator->generateString('Yes')}'']]";
         } else {
             $col = "'$column->name:$format'";
         }

@@ -17,10 +17,10 @@ echo "<?php\n";
  * @var <?= ltrim($generator->searchModelClass, '\\') ?> $model
  */
 
-$this->title = 'Добавить <?= mb_strtolower($localName) ?> | Панель управления | ' . Yii::$app->name;
+$this->title = '<?= $generator->generateString('Add') ?> <?= mb_strtolower($localName) ?> | <?= $generator->generateString('Control panel') ?> | ' . Yii::$app->name;
 $this->params['breadcrumbs'][] = ['label' => '<?= $generator->getLocalName(Generator::LOCAL_INDEX) ?>', 'url' => ['index']];
-$this->params['breadcrumbs'][] = 'Добавить';
-$this->params['title'] = 'Добавить <?= mb_strtolower($localName) ?>';
+$this->params['breadcrumbs'][] = '<?= $generator->generateString('Add') ?>';
+$this->params['title'] = '<?= $generator->generateString('Add') ?> <?= mb_strtolower($localName) ?>';
 ?>
 
 <div class="<?= Inflector::camel2id(StringHelper::basename($generator->modelClass)) ?>-create">

@@ -28,4 +28,20 @@ class Module extends \yii\gii\Module implements BootstrapInterface
     {
         return Yii::getAlias('@yii/gii') . DIRECTORY_SEPARATOR . 'views';
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function init()
+    {
+        parent::init();
+
+        Yii::$app->getI18n()->translations['maxmirazh33-gii*'] = [
+            'class' => 'yii\i18n\PhpMessageSource',
+            'basePath' => '@vendor/maxmirazh33/yii2-gii/messages',
+            'fileMap' => [
+                'maxmirazh33-gii/crud' => 'crud.php',
+            ],
+        ];
+    }
 }
