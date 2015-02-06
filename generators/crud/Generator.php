@@ -319,23 +319,6 @@ class Generator extends \yii\gii\generators\crud\Generator
     /**
      * @inheritdoc
      */
-    public function getNameAttribute()
-    {
-        foreach ($this->getColumnNames() as $name) {
-            if (!strcasecmp($name, 'name') || !strcasecmp($name, 'title')) {
-                return $name;
-            }
-        }
-        /* @var $class \yii\db\ActiveRecord */
-        $class = $this->modelClass;
-        $pk = $class::primaryKey();
-
-        return $pk[0];
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function generateActiveField($attribute)
     {
         $tableSchema = $this->getTableSchema();
@@ -408,16 +391,8 @@ class Generator extends \yii\gii\generators\crud\Generator
     {
         if ($column->phpType === 'boolean' || $column->dbType === 'tinyint(1)') {
             return 'boolean';
-        } elseif ($column->type === 'text') {
-            return 'ntext';
-        } elseif (stripos($column->name, 'time') !== false && $column->phpType === 'integer') {
-            return 'datetime';
-        } elseif (stripos($column->name, 'email') !== false) {
-            return 'email';
-        } elseif (stripos($column->name, 'url') !== false) {
-            return 'url';
         } else {
-            return 'text';
+            return parent::generateColumnFormat($column);
         }
     }
 
@@ -426,27 +401,7 @@ class Generator extends \yii\gii\generators\crud\Generator
      */
     public function generate()
     {
-        $controllerFile = Yii::getAlias('@' . str_replace('\\', '/', ltrim($this->controllerClass, '\\')) . '.php');
-
-        $files = [
-            new CodeFile($controllerFile, $this->render('controller.php')),
-        ];
-
-        if (!empty($this->searchModelClass)) {
-            $searchModel = Yii::getAlias('@' . str_replace('\\', '/', ltrim($this->searchModelClass, '\\') . '.php'));
-            $files[] = new CodeFile($searchModel, $this->render('search.php'));
-        }
-
-        $viewPath = $this->getViewPath();
-        $templatePath = $this->getTemplatePath() . '/views';
-        foreach (scandir($templatePath) as $file) {
-            if (empty($this->searchModelClass) && $file === '_search.php') {
-                continue;
-            }
-            if (is_file($templatePath . '/' . $file) && pathinfo($file, PATHINFO_EXTENSION) === 'php') {
-                $files[] = new CodeFile("$viewPath/$file", $this->render("views/$file"));
-            }
-        }
+        $files = parent::generate();
 
         if ($this->addInMenu) {
             $files[] = $this->addInMenu($this->getControllerID(), $this->getRussianName(self::RUSSIAN_INDEX));
