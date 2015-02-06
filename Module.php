@@ -1,4 +1,5 @@
 <?php
+
 namespace maxmirazh33\gii;
 
 use Yii;

@@ -23,6 +23,7 @@ $issetManyMany = $generator->issetManyMany();
 
 echo "<?php\n";
 ?>
+
 namespace <?= StringHelper::dirname(ltrim($generator->searchModelClass, '\\')) ?>;
 
 use Yii;
