@@ -490,7 +490,7 @@ class Generator extends \yii\gii\generators\crud\Generator
     }
 
     /**
-     * @param yii\db\TableSchema $schema
+     * @param TableSchema|bool $schema
      * @return string name attribute
      */
     public function getNameAttribute($schema = false)
@@ -636,7 +636,6 @@ class Generator extends \yii\gii\generators\crud\Generator
             $relationName = $this->generateRelationName($relations, $className, $rel, $refClassName, true);
             $class = 'common\models\\' . $refClassName;
             $idAttr = $class::getTableSchema()->primaryKey[0];
-            $titleAttr = 'id';
             $titleAttr = $this->getNameAttribute($class::getTableSchema());
             $relations[] = [
                 'className' => $refClassName,
@@ -685,7 +684,7 @@ class Generator extends \yii\gii\generators\crud\Generator
     }
 
     /**
-     * @param $type column type
+     * @param string $type column type
      * @return bool
      */
     protected function issetType($type)

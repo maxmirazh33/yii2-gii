@@ -1,6 +1,6 @@
 Gii
 ===
-Extended gii for maxmirazh33\yii2-app-skeleton
+Extended gii for [maxmirazh33\yii2-app-skeleton](https://github.com/maxmirazh33/yii2-app-skeleton)
 
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/maxmirazh33/yii2-gii/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/maxmirazh33/yii2-gii/?branch=master)
 [![Code Climate](https://codeclimate.com/github/maxmirazh33/yii2-gii/badges/gpa.svg)](https://codeclimate.com/github/maxmirazh33/yii2-gii)

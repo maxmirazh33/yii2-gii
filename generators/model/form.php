@@ -1,7 +1,7 @@
 <?php
 /* @var $this yii\web\View */
 /* @var $form yii\widgets\ActiveForm */
-/* @var $generator maxmirazh33\gii\generators\form\Generator */
+/* @var $generator maxmirazh33\gii\generators\model\Generator */
 
 echo $form->field($generator, 'tableName');
 echo $form->field($generator, 'modelClass');
