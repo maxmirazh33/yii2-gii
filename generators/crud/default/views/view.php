@@ -9,7 +9,7 @@ use yii\helpers\StringHelper;
 use maxmirazh33\gii\generators\crud\Generator;
 
 $urlParams = $generator->generateUrlParams();
-$russianName = $generator->getRussianName(Generator::RUSSIAN_INDEX);
+$localName = $generator->getLocalName(Generator::LOCAL_INDEX);
 
 echo "<?php\n";
 ?>
@@ -21,10 +21,10 @@ echo "<?php\n";
 use yii\helpers\Html;
 use yii\widgets\DetailView;
 
-$this->title = $model-><?= $generator->getNameAttribute() ?> . ' | <?= $russianName ?> | Панель управления | ' . Yii::$app->name;
-$this->params['breadcrumbs'][] = ['label' => '<?= $russianName ?>', 'url' => ['index']];
+$this->title = $model-><?= $generator->getNameAttribute() ?> . ' | <?= $localName ?> | Панель управления | ' . Yii::$app->name;
+$this->params['breadcrumbs'][] = ['label' => '<?= $localName ?>', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $model-><?= $generator->getNameAttribute() ?>;
-$this->params['title'] = "<?= $generator->getRussianName(Generator::RUSSIAN_VIEW) ?> <?= $generator->getNameAttribute() == 'id' ? '#$model->id' : "'\$model->" . $generator->getNameAttribute() . "'" ?>";
+$this->params['title'] = "<?= $generator->getLocalName(Generator::LOCAL_VIEW) ?> <?= $generator->getNameAttribute() == 'id' ? '#$model->id' : "'\$model->" . $generator->getNameAttribute() . "'" ?>";
 ?>
 
 <div class="<?= Inflector::camel2id(StringHelper::basename($generator->modelClass)) ?>-view">

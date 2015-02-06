@@ -14,14 +14,14 @@ use yii\helpers\VarDumper;
  */
 class Generator extends \yii\gii\generators\crud\Generator
 {
-    const RUSSIAN_VIEW = 0;
-    const RUSSIAN_INDEX = 1;
-    const RUSSIAN_ADD = 2;
+    const LOCAL_VIEW = 0;
+    const LOCAL_INDEX = 1;
+    const LOCAL_ADD = 2;
 
     /**
-     * @var string lists of russian names of model class
+     * @var string lists of local names of model class
      */
-    public $russianNames;
+    public $localNames;
     /**
      * @var string db connection
      */
@@ -37,16 +37,16 @@ class Generator extends \yii\gii\generators\crud\Generator
 
     /**
      * @param int $plural required plural
-     * @return string russian name
+     * @return string local name
      */
-    public function getRussianName($plural = self::RUSSIAN_VIEW)
+    public function getLocalName($plural = self::LOCAL_VIEW)
     {
-        $names = explode(' ', $this->russianNames);
+        $names = explode(' ', $this->localNames);
         if (isset($names[$plural])) {
             return $names[$plural];
         } else {
             switch ($plural) {
-                case self::RUSSIAN_INDEX:
+                case self::LOCAL_INDEX:
                     return Inflector::pluralize(Inflector::camel2words(StringHelper::basename($this->modelClass)));
                 default:
                     return Inflector::camel2words(StringHelper::basename($this->modelClass));
@@ -60,7 +60,7 @@ class Generator extends \yii\gii\generators\crud\Generator
     public function rules()
     {
         return array_merge(parent::rules(), [
-            [['russianNames'], 'safe'],
+            [['localNames'], 'safe'],
             [['addInMenu'], 'boolean'],
         ]);
     }
@@ -73,7 +73,7 @@ class Generator extends \yii\gii\generators\crud\Generator
         return array_merge(parent::attributeLabels(), [
             'modelClass' => 'Common Model Class',
             'searchModelClass' => 'Backend Model Class',
-            'russianNames' => 'Russian Model Names',
+            'localNames' => 'Local Model Names',
             'addInMenu' => 'Add in menu',
             'editManyMany' => 'Add edit many-to-many',
         ]);
@@ -89,7 +89,7 @@ class Generator extends \yii\gii\generators\crud\Generator
                 You should provide a fully qualified class name, e.g., <code>common\models\Post</code>.',
             'searchModelClass' => 'This is the name of the backend model class to be generated. You should provide a fully
                 qualified namespaced class name, e.g., <code>backend\models\Post</code>.',
-            'russianNames' => 'This is the russian name of model, as <code>Статья Статьи Статью</code>',
+            'localNames' => 'This is the local name of model, as <code>Статья Статьи Статью</code>',
             'addInMenu' => 'Add this controller in menu',
             'editManyMany' => 'Add edit many-to-many relations',
         ]);
@@ -404,7 +404,7 @@ class Generator extends \yii\gii\generators\crud\Generator
         $files = parent::generate();
 
         if ($this->addInMenu) {
-            $files[] = $this->addInMenu($this->getControllerID(), $this->getRussianName(self::RUSSIAN_INDEX));
+            $files[] = $this->addInMenu($this->getControllerID(), $this->getLocalName(self::LOCAL_INDEX));
         }
 
         return $files;

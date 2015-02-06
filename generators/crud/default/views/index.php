@@ -10,7 +10,7 @@ use maxmirazh33\gii\generators\crud\Generator;
 
 $urlParams = $generator->generateUrlParams();
 $nameAttribute = $generator->getNameAttribute();
-$russianName = $generator->getRussianName(Generator::RUSSIAN_INDEX);
+$localName = $generator->getLocalName(Generator::LOCAL_INDEX);
 
 echo "<?php\n";
 ?>
@@ -23,9 +23,9 @@ echo "<?php\n";
 use yii\helpers\Html;
 use <?= $generator->indexWidgetType === 'grid' ? "yii\\grid\\GridView" : "yii\\widgets\\ListView" ?>;
 
-$this->title = '<?= $russianName ?> | Панель управления | ' . Yii::$app->name;
-$this->params['breadcrumbs'][] = '<?= $russianName ?>';
-$this->params['title'] = '<?= $russianName ?>';
+$this->title = '<?= $localName ?> | Панель управления | ' . Yii::$app->name;
+$this->params['breadcrumbs'][] = '<?= $localName ?>';
+$this->params['title'] = '<?= $localName ?>';
 ?>
 
 <div class="<?= Inflector::camel2id(StringHelper::basename($generator->modelClass)) ?>-index">
