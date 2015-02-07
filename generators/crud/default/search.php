@@ -33,6 +33,9 @@ use yii\base\Model;
 <?php if ($generator->useImageWidget()): ?>
 use maxmirazh33\image\Behavior as ImageBehavior;
 <?php endif; ?>
+<?php if ($generator->issetFiles()): ?>
+use maxmirazh33\file\Behavior as FileBehavior;
+<?php endif; ?>
 <?php foreach ($relations as $rel): ?>
 use common\models\<?= $rel['className'] ?>;
 <?php endforeach; ?>
@@ -64,7 +67,8 @@ class <?= $searchModelClass ?> extends \<?= $generator->modelClass . "\n" ?>
     {
         return ArrayHelper::merge(
             Model::scenarios(),
-            ['search' => ['<?= implode("', '", $generator->getColumnNames()) ?>']]
+            ['search' => ['<?= implode("', '", $generator->getColumnNames()) ?>']],
+            ['update' => ['<?= implode("', '", $generator->getColumnNames()) ?>']]
         );
     }
 
@@ -81,6 +85,18 @@ class <?= $searchModelClass ?> extends \<?= $generator->modelClass . "\n" ?>
                 'attributes' => [
 <?php foreach ($generator->getTableSchema()->columnNames as $column): ?>
 <?php if ($generator->isImage($column)): ?>
+                    '<?= $column ?>',
+<?php endif; ?>
+<?php endforeach; ?>
+                ],
+            ],
+<?php endif; ?>
+<?php if ($generator->issetFiles()): ?>
+            [
+                'class' => FileBehavior::className(),
+                'attributes' => [
+<?php foreach ($generator->getTableSchema()->columnNames as $column): ?>
+<?php if ($generator->isFile($column)): ?>
                     '<?= $column ?>',
 <?php endif; ?>
 <?php endforeach; ?>

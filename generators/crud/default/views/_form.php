@@ -33,11 +33,18 @@ use kartik\date\DatePicker;
 <?php if ($generator->useImageWidget()): ?>
 use maxmirazh33\image\Widget as ImageWidget;
 <?php endif; ?>
+<?php if ($generator->issetFiles()): ?>
+use maxmirazh33\file\Widget as FileWidget;
+<?php endif; ?>
 ?>
 
 <div class="<?= Inflector::camel2id(StringHelper::basename($generator->modelClass)) ?>-form">
 
     <?= "<?php " ?>$form = ActiveForm::begin(<?= $generator->issetFiles() ? "['options' => ['enctype' => 'multipart/form-data']]" : '' ?>); ?>
+
+    <div class="errorSummary">
+        <?= "<?= \$form->errorSummary([\$model]) ?>\n" ?>
+    </div>
 
 <?php foreach ($generator->getColumnNames() as $attribute) {
     if (in_array($attribute, $safeAttributes)) {

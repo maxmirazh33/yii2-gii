@@ -155,7 +155,7 @@ class Generator extends \yii\gii\generators\crud\Generator
             if ($column->autoIncrement) {
                 continue;
             }
-            if (!$column->allowNull && $column->defaultValue === null && !$this->isImage($column->name)) {
+            if (!$column->allowNull && $column->defaultValue === null && !$this->isImage($column->name) && !$this->isFile($column->name)) {
                 $types['required'][] = $column->name;
             }
 
@@ -190,7 +190,7 @@ class Generator extends \yii\gii\generators\crud\Generator
                         $types['date'][] = $column->name;
                         break;
                     default: // strings
-                        if (!$this->isImage($column->name)) {
+                        if (!$this->isImage($column->name) && !$this->isFile($column->name)) {
                             if ($column->size > 0) {
                                 $lengths[$column->size][] = $column->name;
                             } else {
@@ -353,6 +353,8 @@ class Generator extends \yii\gii\generators\crud\Generator
         }
         if ($this->isImage($column->name)) {
             return "\$form->field(\$model, '$attribute')->widget(ImageWidget::className())";
+        } elseif ($this->isFile($column->name)) {
+            return "\$form->field(\$model, '$attribute')->widget(FileWidget::className())";
         } elseif ($column->phpType === 'boolean' || $column->dbType === 'tinyint(1)') {
             return "\$form->field(\$model, '$attribute')->checkbox()";
         } elseif ($column->type === 'text') {
@@ -775,6 +777,6 @@ class Generator extends \yii\gii\generators\crud\Generator
      */
     public function useBehaviors()
     {
-        return $this->useImageWidget() || ($this->issetManyMany() && $this->editManyMany);
+        return $this->useImageWidget() || $this->issetFiles() || ($this->issetManyMany() && $this->editManyMany);
     }
 }
