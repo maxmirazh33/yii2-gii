@@ -52,7 +52,7 @@ use maxmirazh33\file\Widget as FileWidget;
     }
 } ?>
 <?php foreach ($generator->generateManyManyRelations() as $rel) {
-        echo "    <?= \$form->field(\$model, '" . mb_strtolower($rel['className']) . "_list')->dropDownList(\$model->get{$rel['relationName']}ForDropdown(), ['multiple' => true]) ?>\n\n";
+        echo "    <?= \$form->field(\$model, '" . mb_strtolower($rel['className']) . "List')->dropDownList(\$model->get{$rel['relationName']}ForDropdown(), ['multiple' => true]) ?>\n\n";
 } ?>
     <div class="form-group">
         <?= "<?= " ?>Html::submitButton($model->isNewRecord ? '<?= $generator->generateString('Add') ?>' : '<?= $generator->generateString('Save') ?>', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>

@@ -20,6 +20,10 @@ $searchConditions = $generator->generateSearchConditions();
 $relations = $generator->generateRelations();
 $manyManyRelations = $generator->generateManyManyRelations();
 $issetManyMany = $generator->issetManyMany();
+$manyManyProperties = [];
+foreach ($manyManyRelations as $rel) {
+    $manyManyProperties[mb_strtolower($rel['className']) . 'List'] = $rel['relationName'];
+}
 
 echo "<?php\n";
 ?>
@@ -67,8 +71,8 @@ class <?= $searchModelClass ?> extends \<?= $generator->modelClass . "\n" ?>
     {
         return ArrayHelper::merge(
             Model::scenarios(),
-            ['search' => ['<?= implode("', '", $generator->getColumnNames()) ?>']],
-            ['update' => ['<?= implode("', '", $generator->getColumnNames()) ?>']]
+            ['search' => ['<?= implode("', '", ArrayHelper::merge($generator->getColumnNames(), array_keys($manyManyProperties))) ?>']],
+            ['update' => ['<?= implode("', '", ArrayHelper::merge($generator->getColumnNames(), array_keys($manyManyProperties))) ?>']]
         );
     }
 
@@ -107,8 +111,8 @@ class <?= $searchModelClass ?> extends \<?= $generator->modelClass . "\n" ?>
             [
                 'class' => ManyToManyBehavior::className(),
                 'relations' => [
-<?php foreach ($manyManyRelations as $rel): ?>
-                    '<?= mb_strtolower($rel['className']) ?>_list' => '<?= mb_strtolower($rel['relationName']) ?>',
+<?php foreach ($manyManyProperties as $prop => $rel): ?>
+                    '<?= $prop ?>' => '<?= mb_strtolower($rel) ?>',
 <?php endforeach; ?>
                 ],
             ],
@@ -126,8 +130,8 @@ class <?= $searchModelClass ?> extends \<?= $generator->modelClass . "\n" ?>
         return ArrayHelper::merge(
             parent::attributeLabels(),
             [
-<?php foreach ($manyManyRelations as $rel): ?>
-                '<?= mb_strtolower($rel['className']) . '_list' ?>' => '<?= $rel['relationName'] ?>',
+<?php foreach ($manyManyProperties as $prop => $rel): ?>
+                '<?= $prop ?>' => '<?= $rel ?>',
 <?php endforeach; ?>
             ]
         );

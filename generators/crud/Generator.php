@@ -190,7 +190,7 @@ class Generator extends \yii\gii\generators\crud\Generator
                         $types['date'][] = $column->name;
                         break;
                     default: // strings
-                        if (!$this->isImage($column->name) && !$this->isFile($column->name)) {
+                        if ($this->isDefaultType($column->name)) {
                             if ($column->size > 0) {
                                 $lengths[$column->size][] = $column->name;
                             } else {
@@ -202,9 +202,12 @@ class Generator extends \yii\gii\generators\crud\Generator
 
             if ($this->isImage($column->name)) {
                 $types['image'][] = $column->name;
-            }
-            if ($this->isFile($column->name)) {
+            } elseif ($this->isFile($column->name)) {
                 $types['file'][] = $column->name;
+            } elseif ($this->isEmail($column->name)) {
+                $types['email'][] = $column->name;
+            } elseif ($this->isUrl($column->name)) {
+                $types['url'][] = $column->name;
             }
         }
 
@@ -266,9 +269,18 @@ class Generator extends \yii\gii\generators\crud\Generator
      * @param string $name
      * @return bool
      */
+    protected function isDefaultType($name)
+    {
+        return !$this->isFile($name) && !$this->isImage($name) && !$this->isEmail($name) && !$this->isUrl($name);
+    }
+
+    /**
+     * @param string $name
+     * @return bool
+     */
     public function isImage($name)
     {
-        if (preg_match('/^(image|img|photo|avatar|logo)$/i', $name)) {
+        if (preg_match('/(image|img|photo|avatar|logo)/i', $name)) {
             return true;
         }
 
@@ -281,7 +293,33 @@ class Generator extends \yii\gii\generators\crud\Generator
      */
     public function isFile($name)
     {
-        if (preg_match('/^(file|doc|attach|pdf|presentation)$/i', $name)) {
+        if (preg_match('/(file|doc|attach|pdf|presentation)/i', $name)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @param string $name
+     * @return bool
+     */
+    public function isUrl($name)
+    {
+        if (preg_match('/(link|url|vk|vkontakte|fb|facebook|google|twitter|instagram)/i', $name)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @param string $name
+     * @return bool
+     */
+    public function isEmail($name)
+    {
+        if (preg_match('/(mail|email)/i', $name)) {
             return true;
         }
 
@@ -421,6 +459,14 @@ class Generator extends \yii\gii\generators\crud\Generator
     {
         if ($column->phpType === 'boolean' || $column->dbType === 'tinyint(1)') {
             return 'boolean';
+        } elseif ($this->isUrl($column->name)) {
+            return 'url';
+        } elseif ($this->isEmail($column->name)) {
+            return 'email';
+        } elseif ($column->type == 'text') {
+            return 'html';
+        } elseif ($column->dbType == 'date') {
+            return 'date';
         } else {
             return parent::generateColumnFormat($column);
         }
