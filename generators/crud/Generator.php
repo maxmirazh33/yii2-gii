@@ -199,6 +199,13 @@ class Generator extends \yii\gii\generators\crud\Generator
                         }
                 }
             }
+
+            if ($this->isImage($column->name)) {
+                $types['image'][] = $column->name;
+            }
+            if ($this->isFile($column->name)) {
+                $types['file'][] = $column->name;
+            }
         }
 
         foreach ($this->generateManyManyRelations() as $rel) {
@@ -214,6 +221,12 @@ class Generator extends \yii\gii\generators\crud\Generator
                 foreach ($columns as $col) {
                     $rules[] = "[['" . $col[0] . "'], 'in', 'range' => array_keys(static::get" . $col[1] . "ForDropdown()), 'except' => ['search']]";
                 }
+            } elseif ($type == 'image') {
+                $rules[] = "[['" . implode("', '",
+                        $columns) . "'], '$type', 'extensions' => ['jpg', 'jpeg', 'png', 'gif'], 'skipOnEmpty' => \$this->scenario == 'update', 'except' => ['search']]";
+            } elseif ($type == 'file') {
+                $rules[] = "[['" . implode("', '",
+                        $columns) . "'], '$type', 'skipOnEmpty' => \$this->scenario == 'update', 'except' => ['search']]";
             } else {
                 $rules[] = "[['" . implode("', '", $columns) . "'], '$type', 'except' => ['search']]";
             }
