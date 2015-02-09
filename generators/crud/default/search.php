@@ -8,6 +8,7 @@
 
 use yii\helpers\StringHelper;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Inflector;
 
 $modelClass = StringHelper::basename($generator->modelClass);
 $searchModelClass = StringHelper::basename($generator->searchModelClass);
@@ -183,6 +184,19 @@ class <?= $searchModelClass ?> extends \<?= $generator->modelClass . "\n" ?>
 
         return $dataProvider;
     }
+<?php foreach ($generator->getTableSchema()->columns as $column): ?>
+<?php if (is_array($column->enumValues) && count($column->enumValues) > 0): ?>
+
+    /**
+     * @return array enum values for <?= $column->name ?> attribute
+     */
+    public function get<?= Inflector::humanize(Inflector::variablize($column->name)) ?>Enums()
+    {
+        $enums = static::getTableSchema()->getColumn('<?= $column->name ?>')->enumValues;
+        return array_combine($enums, $enums);
+    }
+<?php endif; ?>
+<?php endforeach; ?>
 <?php foreach ($manyManyRelations as $rel): ?>
 
     /**

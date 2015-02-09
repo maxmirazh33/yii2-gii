@@ -201,7 +201,9 @@ class Generator extends \yii\gii\generators\crud\Generator
                 }
             }
 
-            if ($this->isImage($column->name)) {
+            if (is_array($column->enumValues) && count($column->enumValues) > 0) {
+                $types['enum'][] = $column->name;
+            } elseif ($this->isImage($column->name)) {
                 $types['image'][] = $column->name;
             } elseif ($this->isFile($column->name)) {
                 $types['file'][] = $column->name;
@@ -222,7 +224,11 @@ class Generator extends \yii\gii\generators\crud\Generator
 
         $rules = [];
         foreach ($types as $type => $columns) {
-            if ($type == 'date') {
+            if ($type == 'enum') {
+                foreach ($columns as $col) {
+                    $rules[] = "[['" . $col . "'], 'in', 'range' => static::get" . Inflector::humanize(Inflector::variablize($col)) . "Enums(), 'except' => ['search']]";
+                }
+            } elseif ($type == 'date') {
                 $rules[] = "[['" . implode("', '",
                         $columns) . "'], '$type', 'format' => 'php:Y-m-d', 'except' => ['search']]";
             } elseif ($type == 'time') {
@@ -439,12 +445,7 @@ class Generator extends \yii\gii\generators\crud\Generator
                 $input = 'textInput';
             }
             if (is_array($column->enumValues) && count($column->enumValues) > 0) {
-                $dropDownOptions = [];
-                foreach ($column->enumValues as $enumValue) {
-                    $dropDownOptions[$enumValue] = Inflector::humanize($enumValue);
-                }
-                return "\$form->field(\$model, '$attribute')->dropDownList("
-                . preg_replace("/\n\s*/", ' ', VarDumper::export($dropDownOptions)) . ", ['prompt' => ''])";
+                return "\$form->field(\$model, '$attribute')->dropDownList(\$model->get" . Inflector::humanize(Inflector::variablize($column->name)) . "Enums(), ['prompt' => ''])";
             } elseif ($column->phpType !== 'string' || $column->size === null) {
                 return "\$form->field(\$model, '$attribute')->$input()";
             } else {
