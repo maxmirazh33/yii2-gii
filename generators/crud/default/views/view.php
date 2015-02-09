@@ -22,8 +22,11 @@ echo "<?php\n";
 
 use yii\helpers\Html;
 use yii\widgets\DetailView;
-<?php if (count($relations) > 0 || count($manyManyRelations) > 0): ?>
+<?php if (count($relations) > 0): ?>
 use yii\helpers\Url;
+<?php endif; ?>
+<?php if (count($manyManyRelations) > 0): ?>
+use yii\helpers\ArrayHelper;
 <?php endif; ?>
 
 $this->title = $model-><?= $generator->getNameAttribute() ?> . ' | <?= $localName ?> | <?= $generator->generateString('Control panel') ?> | ' . Yii::$app->name;
@@ -45,13 +48,20 @@ $this->params['title'] = "<?= $generator->getLocalName(Generator::LOCAL_VIEW) ?>
         ]) ?>
     </p>
 
+<?php $tabs = '            ' ?>
     <?= "<?= " ?>DetailView::widget([
         'model' => $model,
+<?php if (count($manyManyRelations) > 0): ?>
+        'attributes' => ArrayHelper::merge(
+            [
+<?php $tabs = '                '; ?>
+<?php else: ?>
         'attributes' => [
+<?php endif; ?>
 <?php
 if (($tableSchema = $generator->getTableSchema()) === false) {
     foreach ($generator->getColumnNames() as $name) {
-        echo "            '" . $name . "',\n";
+        echo $tabs . "'" . $name . "',\n";
     }
 } else {
     foreach ($generator->getTableSchema()->columns as $column) {
@@ -59,29 +69,34 @@ if (($tableSchema = $generator->getTableSchema()) === false) {
         foreach ($relations as $rel) {
             if ($rel['foreignKey'] == $column->name) {
                 $lowerClass = mb_strtolower($rel['className']);
-                echo "            ['attribute' => '$column->name', 'value' => Html::a(\$model->" . $lowerClass . "->{$rel['titleAttr']}, Url::toRoute(['/$lowerClass/view', 'id' => \$model->$column->name])), 'format' => 'raw'],\n";
+                echo "{$tabs}[\n$tabs    'attribute' => '$column->name',\n$tabs    'value' => Html::a(\$model->" . $lowerClass . "->{$rel['titleAttr']}, Url::toRoute(['/$lowerClass/view', 'id' => \$model->$column->name])),\n$tabs    'format' => 'raw',\n$tabs],\n";
                 $skip = true;
                 break;
             }
         }
         if (!$skip) {
             if ($generator->isImage($column->name)) {
-                echo "            ['attribute' => '$column->name', 'value' => Html::img(\$model->getImageUrl('$column->name'), ['style' => 'max-height: 150px;']), 'format' => 'raw'],\n";
+                echo "{$tabs}[\n$tabs    'attribute' => '$column->name',\n$tabs    'value' => Html::img(\$model->getImageUrl('$column->name'), ['style' => 'max-height: 150px;']),\n$tabs    'format' => 'raw',\n$tabs],\n";
             } elseif ($generator->isFile($column->name)) {
-                echo "            ['attribute' => '$column->name', 'value' => Html::a(\$model->$column->name, \$model->getFileUrl('$column->name')), 'format' => 'raw'],\n";
+                echo "{$tabs}[\n$tabs    'attribute' => '$column->name',\n$tabs    'value' => Html::a(\$model->$column->name, \$model->getFileUrl('$column->name')),\n$tabs    'format' => 'raw',\n$tabs],\n";
             } else {
                 $format = $generator->generateColumnFormat($column);
-                echo "            '" . $column->name . ($format === 'text' ? "" : ":" . $format) . "',\n";
+                echo $tabs . "'" . $column->name . ($format === 'text' ? "" : ":" . $format) . "',\n";
             }
         }
     }
-    foreach ($manyManyRelations as $rel) {
-        $lowerClass = mb_strtolower($rel['className']);
-        echo "            ['attribute' => '{$lowerClass}List', 'value' => implode('<br>', array_map(function (\$el) { return Html::a(\$el->{$rel['titleAttr']}, Url::toRoute(['/$lowerClass/view', 'id' => \$el->id])); }, \$model->get{$rel['relationName']}()->all())), 'format' => 'raw'],\n";
+    if (count($manyManyRelations) > 0) {
+        echo '            ]';
+        foreach ($manyManyRelations as $rel) {
+            echo ",\n            \$model->get{$rel['relationName']}ForDetailView()";
+        }
+        echo "\n        ),\n";
     }
 }
 ?>
+<?php if (count($manyManyRelations) == 0): ?>
         ],
+<?php endif; ?>
     ]) ?>
 
 </div>

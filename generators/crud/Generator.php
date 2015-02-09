@@ -63,7 +63,7 @@ class Generator extends \yii\gii\generators\crud\Generator
     {
         return array_merge(parent::rules(), [
             [['localNames'], 'safe'],
-            [['addInMenu'], 'boolean'],
+            [['addInMenu', 'editManyMany'], 'boolean'],
         ]);
     }
 
@@ -212,7 +212,7 @@ class Generator extends \yii\gii\generators\crud\Generator
         }
 
         foreach ($this->generateManyManyRelations() as $rel) {
-            $types['safe'][] = mb_strtolower($rel['className']) . '_list';
+            $types['safe'][] = mb_strtolower($rel['className']) . 'List';
         }
 
         $rules = [];
@@ -701,8 +701,10 @@ class Generator extends \yii\gii\generators\crud\Generator
             $table1 = $fks[$otherTable->primaryKey[1]][0];
             if ($table0 == $table->name) {
                 $rel = $table1;
+                $foreignKey = $otherTable->primaryKey[1];
             } elseif ($table1 == $table->name) {
                 $rel = $table0;
+                $foreignKey = $otherTable->primaryKey[0];
             } else {
                 continue;
             }
@@ -717,7 +719,7 @@ class Generator extends \yii\gii\generators\crud\Generator
                 'relationName' => $relationName,
                 'idAttr' => $idAttr,
                 'titleAttr' => $titleAttr,
-                'foreignKey' => $fks[1],
+                'foreignKey' => $foreignKey,
             ];
         }
 
