@@ -46,6 +46,8 @@ $this->params['title'] = "<?= $generator->getLocalName(Generator::LOCAL_VIEW) ?>
                 'method' => 'post',
             ],
         ]) ?>
+        <?= "<?= " ?>Html::a('<?= $generator->generateString('All') ?> <?= mb_strtolower($localName) ?>', ['index'], ['class' => 'btn btn-info btn-right']) ?>
+        <?= "<?= " ?>Html::a('<?= $generator->generateString('Add') ?>', ['create'], ['class' => 'btn btn-success btn-right']) ?>
     </p>
 
 <?php $tabs = '            ' ?>

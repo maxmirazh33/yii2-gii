@@ -17,6 +17,8 @@ echo "<?php\n";
  * @var <?= ltrim($generator->searchModelClass, '\\') ?> $model
  */
 
+use yii\helpers\Html;
+
 $this->title = '<?= $generator->generateString('Add') ?> <?= mb_strtolower($localName) ?> | <?= $generator->generateString('Control panel') ?> | ' . Yii::$app->name;
 $this->params['breadcrumbs'][] = ['label' => '<?= $generator->getLocalName(Generator::LOCAL_INDEX) ?>', 'url' => ['index']];
 $this->params['breadcrumbs'][] = '<?= $generator->generateString('Add') ?>';
@@ -24,6 +26,10 @@ $this->params['title'] = '<?= $generator->generateString('Add') ?> <?= mb_strtol
 ?>
 
 <div class="<?= Inflector::camel2id(StringHelper::basename($generator->modelClass)) ?>-create">
+
+    <p class="clear">
+        <?= "<?= Html::a('{$generator->generateString('All')} " . mb_strtolower($generator->getLocalName(Generator::LOCAL_INDEX)) . "', ['index'], ['class' => 'btn btn-info btn-right']) ?>\n" ?>
+    </p>
 
     <?= "<?= " ?>$this->render('_form', [
         'model' => $model,
