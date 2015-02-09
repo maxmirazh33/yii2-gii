@@ -183,11 +183,12 @@ class Generator extends \yii\gii\generators\crud\Generator
                     case Schema::TYPE_MONEY:
                         $types['number'][] = $column->name;
                         break;
-                    case Schema::TYPE_DATE:
                     case Schema::TYPE_TIME:
+                        $types['time'][] = $column->name;
+                        break;
                     case Schema::TYPE_DATETIME:
                     case Schema::TYPE_TIMESTAMP:
-                        $types['date'][] = $column->name;
+                        $types['datetime'][] = $column->name;
                         break;
                     default: // strings
                         if ($this->isDefaultType($column->name)) {
@@ -208,6 +209,10 @@ class Generator extends \yii\gii\generators\crud\Generator
                 $types['email'][] = $column->name;
             } elseif ($this->isUrl($column->name)) {
                 $types['url'][] = $column->name;
+            } elseif ($column->dbType == 'year(4)') {
+                $types['year'][] = $column->name;
+            } elseif ($column->dbType == 'date') {
+                $types['date'][] = $column->name;
             }
         }
 
@@ -220,6 +225,15 @@ class Generator extends \yii\gii\generators\crud\Generator
             if ($type == 'date') {
                 $rules[] = "[['" . implode("', '",
                         $columns) . "'], '$type', 'format' => 'php:Y-m-d', 'except' => ['search']]";
+            } elseif ($type == 'time') {
+                $rules[] = "[['" . implode("', '",
+                        $columns) . "'], 'date', 'format' => 'php:H:i:s', 'except' => ['search']]";
+            } elseif ($type == 'year') {
+                $rules[] = "[['" . implode("', '",
+                        $columns) . "'], 'date', 'format' => 'php:Y', 'except' => ['search']]";
+            } elseif ($type == 'datetime') {
+                $rules[] = "[['" . implode("', '",
+                        $columns) . "'], 'date', 'format' => 'php:Y-m-d H:i:s', 'except' => ['search']]";
             } elseif ($type == 'in') {
                 foreach ($columns as $col) {
                     $rules[] = "[['" . $col[0] . "'], 'in', 'range' => array_keys(static::get" . $col[1] . "ForDropdown()), 'except' => ['search']]";
@@ -399,7 +413,7 @@ class Generator extends \yii\gii\generators\crud\Generator
         $relations = $this->generateRelations();
         foreach ($relations as $rel) {
             if ($rel['foreignKey'] == $column->name) {
-                return "\$form->field(\$model, '$attribute')->dropDownList(\$model->get{$rel['relationName']}ForDropDown())";
+                return "\$form->field(\$model, '$attribute')->dropDownList(\$model->get{$rel['relationName']}ForDropDown(), ['prompt' => ''])";
             }
         }
         if ($this->isImage($column->name)) {
@@ -411,7 +425,11 @@ class Generator extends \yii\gii\generators\crud\Generator
         } elseif ($column->type === 'text') {
             return "\$form->field(\$model, '$attribute')->widget(ImperaviWidget::className())";
         } elseif ($column->dbType === 'date') {
-            return "\$form->field(\$model, '$attribute')->widget(DatePicker::className(), ['pluginOptions' => ['format' => 'yyyy-mm-dd']])";
+            return "\$form->field(\$model, '$attribute')->widget(DatePicker::className(), ['pluginOptions' => ['format' => 'yyyy-mm-dd', 'weekStart' => 1, 'autoclose' => true]])";
+        } elseif ($column->dbType == 'time') {
+            return "\$form->field(\$model, '$attribute')->widget(TimePicker::className(), ['pluginOptions' => ['format' => 'hh:ii:ss', 'showSeconds' => true, 'showMeridian' => false, 'minuteStep' => 1, 'secondStep' => 1, 'autoclose' => true]])";
+        } elseif ($column->dbType == 'datetime' || $column->dbType == 'timestamp') {
+            return "\$form->field(\$model, '$attribute')->widget(DateTimePicker::className(), ['pluginOptions' => ['format' => 'yyyy-mm-dd hh:ii:ss', 'weekStart' => 1, 'minuteStep' => 1, 'autoclose' => true]])";
         } elseif ($column->type === 'string' && $column->size > 256) {
             return "\$form->field(\$model, '$attribute')->textArea(['rows' => 6])";
         } else {
@@ -467,6 +485,8 @@ class Generator extends \yii\gii\generators\crud\Generator
             return 'html';
         } elseif ($column->dbType == 'date') {
             return 'date';
+        } elseif ($column->dbType == 'datetime' || $column->dbType == 'timestamp') {
+            return 'datetime';
         } else {
             return parent::generateColumnFormat($column);
         }
@@ -772,9 +792,27 @@ class Generator extends \yii\gii\generators\crud\Generator
      */
     public function useDatePicker()
     {
-
         return ($this->issetType('date'));
     }
+
+    /**
+     * Check need use TimePicker
+     * @return bool
+     */
+    public function useTimePicker()
+    {
+        return ($this->issetType('time'));
+    }
+
+    /**
+     * Check need use DateTimePicker
+     * @return bool
+     */
+    public function useDateTimePicker()
+    {
+        return ($this->issetType('datetime') || $this->issetType('timestamp'));
+    }
+
 
     /**
      * Check need use maxmirazh33\image\Widget

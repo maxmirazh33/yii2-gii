@@ -30,6 +30,12 @@ use backend\components\ImperaviWidget;
 <?php if ($generator->useDatePicker()): ?>
 use kartik\date\DatePicker;
 <?php endif; ?>
+<?php if ($generator->useTimePicker()): ?>
+use kartik\time\TimePicker;
+<?php endif; ?>
+<?php if ($generator->useDateTimePicker()): ?>
+use kartik\datetime\DateTimePicker;
+<?php endif; ?>
 <?php if ($generator->useImageWidget()): ?>
 use maxmirazh33\image\Widget as ImageWidget;
 <?php endif; ?>

@@ -57,6 +57,26 @@ class <?= $searchModelClass ?> extends \<?= $generator->modelClass . "\n" ?>
     /**
      * @inheritdoc
      */
+    public function init()
+    {
+        parent::init();
+<?php foreach ($generator->getTableSchema()->columns as $column): ?>
+<?php if ($column->dbType == 'date'): ?>
+        $this-><?= $column->name ?> = date('Y-m-d');
+<?php elseif ($column->dbType == 'time'): ?>
+        $this-><?= $column->name ?> = date('H:i:s');
+<?php elseif ($column->dbType == 'datetime' || $column->dbType == 'timestamp'): ?>
+        $this-><?= $column->name ?> = date('Y-m-d H:i:s');
+<?php elseif ($column->dbType == 'year(4)'): ?>
+        $this-><?= $column->name ?> = date('Y');
+<?php endif; ?>
+<?php endforeach; ?>
+        $this->loadDefaultValues();
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function rules()
     {
         return [
