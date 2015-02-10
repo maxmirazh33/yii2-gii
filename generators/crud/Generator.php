@@ -4,6 +4,7 @@ namespace maxmirazh33\gii\generators\crud;
 
 use Yii;
 use yii\base\NotSupportedException;
+use yii\db\ColumnSchema;
 use yii\db\mysql\Schema;
 use yii\db\TableSchema;
 use yii\gii\CodeFile;
@@ -191,7 +192,7 @@ class Generator extends \yii\gii\generators\crud\Generator
                         $types['datetime'][] = $column->name;
                         break;
                     default: // strings
-                        if ($this->isDefaultType($column->name)) {
+                        if ($this->isDefaultType($column)) {
                             if ($column->size > 0) {
                                 $lengths[$column->size][] = $column->name;
                             } else {
@@ -201,7 +202,7 @@ class Generator extends \yii\gii\generators\crud\Generator
                 }
             }
 
-            if (is_array($column->enumValues) && count($column->enumValues) > 0) {
+            if ($this->isEnum($column)) {
                 $types['enum'][] = $column->name;
             } elseif ($this->isImage($column->name)) {
                 $types['image'][] = $column->name;
@@ -286,12 +287,35 @@ class Generator extends \yii\gii\generators\crud\Generator
     }
 
     /**
-     * @param string $name
+     * @param ColumnSchema $column
      * @return bool
      */
-    protected function isDefaultType($name)
+    protected function isDefaultType($column)
     {
-        return !$this->isFile($name) && !$this->isImage($name) && !$this->isEmail($name) && !$this->isUrl($name);
+        return !$this->isFile($column->name)
+        && !$this->isImage($column->name)
+        && !$this->isEmail($column->name)
+        && !$this->isUrl($column->name)
+        && !$this->isEnum($column)
+        && !$this->isDate($column);
+    }
+
+    /**
+     * @param ColumnSchema $column
+     * @return bool
+     */
+    public function isDate($column)
+    {
+        return in_array($column->dbType, ['date', 'datetime', 'year(4)', 'timestamp', 'time']);
+    }
+
+    /**
+     * @param ColumnSchema $column
+     * @return bool
+     */
+    public function isEnum($column)
+    {
+        return is_array($column->enumValues) && count($column->enumValues) > 0;
     }
 
     /**
@@ -765,7 +789,7 @@ class Generator extends \yii\gii\generators\crud\Generator
             $string = Yii::t('maxmirazh33-gii/crud', $string);
             // No I18N, replace placeholders by real words, if any
             if (!empty($placeholders)) {
-                $phKeys = array_map(function($word) {
+                $phKeys = array_map(function ($word) {
                     return '{' . $word . '}';
                 }, array_keys($placeholders));
                 $phValues = array_values($placeholders);
@@ -849,7 +873,8 @@ class Generator extends \yii\gii\generators\crud\Generator
      * Check isset many-to-many relations
      * @return bool
      */
-    public function issetManyMany(){
+    public function issetManyMany()
+    {
         if (!$this->editManyMany) {
             return false;
         }
