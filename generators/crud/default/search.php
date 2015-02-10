@@ -172,11 +172,28 @@ class <?= $searchModelClass ?> extends \<?= $generator->modelClass . "\n" ?>
      */
     public function search($params)
     {
-        $query = static::find();
+<?php
+    $join = '';
+    if ($relations > 0) {
+        $join = '->joinWith([';
+        foreach ($relations as $rel) {
+            $join .= "'" . mb_strtolower($rel['className']) . "',";
+        }
+        $join .= ']);';
+    }
+?>
+        $query = static::find()<?= $join ?>;
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
         ]);
+<?php foreach ($relations as $rel): ?>
+
+        $dataProvider->sort->attributes['<?= $rel['foreignKey'] ?>'] = [
+            'asc' => ['<?= mb_strtolower($rel['className']) ?>.<?= $rel['titleAttr'] ?>' => SORT_ASC],
+            'desc' => ['<?= mb_strtolower($rel['className']) ?>.<?= $rel['titleAttr'] ?>' => SORT_DESC],
+        ];
+<?php endforeach; ?>
 
         if (!($this->load($params) && $this->validate())) {
             return $dataProvider;

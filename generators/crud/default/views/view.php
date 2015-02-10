@@ -78,7 +78,7 @@ if (($tableSchema = $generator->getTableSchema()) === false) {
         }
         if (!$skip) {
             if ($generator->isImage($column->name)) {
-                echo "{$tabs}[\n$tabs    'attribute' => '$column->name',\n$tabs    'value' => Html::img(\$model->getImageUrl('$column->name'), ['style' => 'max-height: 150px;']),\n$tabs    'format' => 'raw',\n$tabs],\n";
+                echo "{$tabs}[\n$tabs    'attribute' => '$column->name',\n$tabs    'value' => Html::img(\$model->getImageUrl('$column->name')),\n$tabs    'format' => 'raw',\n$tabs],\n";
             } elseif ($generator->isFile($column->name)) {
                 echo "{$tabs}[\n$tabs    'attribute' => '$column->name',\n$tabs    'value' => Html::a(\$model->$column->name, \$model->getFileUrl('$column->name')),\n$tabs    'format' => 'raw',\n$tabs],\n";
             } else {
