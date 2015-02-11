@@ -50,8 +50,8 @@ $this->params['title'] = "<?= $generator->getLocalName(Generator::LOCAL_VIEW) ?>
                 ],
             ]
         ) ?>
-        <?= "<?= " ?>Html::a('<?= $generator->generateString('All') ?> <?= mb_strtolower($localName) ?>', ['index'], ['class' => 'btn btn-info btn-right glyphicon-plus']) ?>
-        <?= "<?= " ?>Html::a('<?= $generator->generateString('Add') ?>', ['create'], ['class' => 'btn btn-success btn-right glyphicon-list']) ?>
+        <?= "<?= " ?>Html::a('<?= $generator->generateString('All') ?> <?= mb_strtolower($localName) ?>', ['index'], ['class' => 'btn btn-info btn-right glyphicon-list']) ?>
+        <?= "<?= " ?>Html::a('<?= $generator->generateString('Add') ?>', ['create'], ['class' => 'btn btn-success btn-right glyphicon-plus']) ?>
     </p>
 
 <?php $tabs = '            ' ?>
