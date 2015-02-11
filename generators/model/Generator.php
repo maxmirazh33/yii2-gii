@@ -70,8 +70,7 @@ class Generator extends \yii\gii\generators\model\Generator
 
                 $link = $this->generateRelationLink([$fks[$table->primaryKey[1]][1] => $table->primaryKey[1]]);
                 $viaLink = $this->generateRelationLink([$table->primaryKey[0] => $fks[$table->primaryKey[0]][1]]);
-                $relationName = $this->generateRelationName($relations, $className0, $db->getTableSchema($table0),
-                    $table->primaryKey[1], true);
+                $relationName = $this->generateRelationName($relations, $className0, $db->getTableSchema($table0), $table->primaryKey[1], true);
                 $relations[$className0][$relationName] = [
                     "return \$this->hasMany($className1::className(), $link)->viaTable('" . $this->generateTableName($table->name) . "', $viaLink);",
                     $className1,
@@ -80,8 +79,7 @@ class Generator extends \yii\gii\generators\model\Generator
 
                 $link = $this->generateRelationLink([$fks[$table->primaryKey[0]][1] => $table->primaryKey[0]]);
                 $viaLink = $this->generateRelationLink([$table->primaryKey[1] => $fks[$table->primaryKey[1]][1]]);
-                $relationName = $this->generateRelationName($relations, $className1, $db->getTableSchema($table1),
-                    $table->primaryKey[0], true);
+                $relationName = $this->generateRelationName($relations, $className1, $db->getTableSchema($table1), $table->primaryKey[0], true);
                 $relations[$className1][$relationName] = [
                     "return \$this->hasMany($className0::className(), $link)->viaTable('" . $this->generateTableName($table->name) . "', $viaLink);",
                     $className0,
@@ -118,8 +116,7 @@ class Generator extends \yii\gii\generators\model\Generator
                         }
                     }
                     $link = $this->generateRelationLink($refs);
-                    $relationName = $this->generateRelationName($relations, $refClassName, $refTable, $className,
-                        $hasMany);
+                    $relationName = $this->generateRelationName($relations, $refClassName, $refTable, $className, $hasMany);
                     $relations[$refClassName][$relationName] = [
                         "return \$this->" . ($hasMany ? 'hasMany' : 'hasOne') . "($className::className(), $link);",
                         $className,

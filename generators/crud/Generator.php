@@ -229,27 +229,21 @@ class Generator extends \yii\gii\generators\crud\Generator
                     $rules[] = "[['" . $col . "'], 'in', 'range' => static::get" . Inflector::humanize(Inflector::variablize($col)) . "Enums(), 'except' => ['search']]";
                 }
             } elseif ($type == 'date') {
-                $rules[] = "[['" . implode("', '",
-                        $columns) . "'], '$type', 'format' => 'php:Y-m-d', 'except' => ['search']]";
+                $rules[] = "[['" . implode("', '", $columns) . "'], '$type', 'format' => 'php:Y-m-d', 'except' => ['search']]";
             } elseif ($type == 'time') {
-                $rules[] = "[['" . implode("', '",
-                        $columns) . "'], 'date', 'format' => 'php:H:i:s', 'except' => ['search']]";
+                $rules[] = "[['" . implode("', '", $columns) . "'], 'date', 'format' => 'php:H:i:s', 'except' => ['search']]";
             } elseif ($type == 'year') {
-                $rules[] = "[['" . implode("', '",
-                        $columns) . "'], 'date', 'format' => 'php:Y', 'except' => ['search']]";
+                $rules[] = "[['" . implode("', '", $columns) . "'], 'date', 'format' => 'php:Y', 'except' => ['search']]";
             } elseif ($type == 'datetime') {
-                $rules[] = "[['" . implode("', '",
-                        $columns) . "'], 'date', 'format' => 'php:Y-m-d H:i:s', 'except' => ['search']]";
+                $rules[] = "[['" . implode("', '", $columns) . "'], 'date', 'format' => 'php:Y-m-d H:i:s', 'except' => ['search']]";
             } elseif ($type == 'in') {
                 foreach ($columns as $col) {
                     $rules[] = "[['" . $col[0] . "'], 'in', 'range' => array_keys(static::get" . $col[1] . "ForDropdown()), 'except' => ['search']]";
                 }
             } elseif ($type == 'image') {
-                $rules[] = "[['" . implode("', '",
-                        $columns) . "'], '$type', 'extensions' => ['jpg', 'jpeg', 'png', 'gif'], 'skipOnEmpty' => \$this->scenario == 'update', 'except' => ['search']]";
+                $rules[] = "[['" . implode("', '", $columns) . "'], '$type', 'extensions' => ['jpg', 'jpeg', 'png', 'gif'], 'skipOnEmpty' => \$this->scenario == 'update', 'except' => ['search']]";
             } elseif ($type == 'file') {
-                $rules[] = "[['" . implode("', '",
-                        $columns) . "'], '$type', 'skipOnEmpty' => \$this->scenario == 'update', 'except' => ['search']]";
+                $rules[] = "[['" . implode("', '", $columns) . "'], '$type', 'skipOnEmpty' => \$this->scenario == 'update', 'except' => ['search']]";
             } else {
                 $rules[] = "[['" . implode("', '", $columns) . "'], '$type', 'except' => ['search']]";
             }
@@ -273,8 +267,8 @@ class Generator extends \yii\gii\generators\crud\Generator
                         $labels = array_intersect_key($this->generateLabels($table), array_flip($uniqueColumns));
                         $lastLabel = array_pop($labels);
                         $columnsList = implode("', '", $uniqueColumns);
-                        $rules[] = "[['" . $columnsList . "'], 'unique', 'targetAttribute' => ['" . $columnsList . "'], 'message' => 'The combination of " . implode(', ',
-                                $labels) . " and " . $lastLabel . " has already been taken.', 'except' => ['search']]";
+                        $rules[] = "[['" . $columnsList . "'], 'unique', 'targetAttribute' => ['" . $columnsList . "'], 'message' => 'The combination of "
+                            . implode(', ', $labels) . " and " . $lastLabel . " has already been taken.', 'except' => ['search']]";
                     }
                 }
             }
