@@ -1,5 +1,4 @@
 <?php
-
 namespace maxmirazh33\gii\generators\model;
 
 /**

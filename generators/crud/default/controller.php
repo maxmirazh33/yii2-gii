@@ -13,7 +13,6 @@ $searchModelClass = StringHelper::basename($generator->searchModelClass);
 
 echo "<?php\n";
 ?>
-
 namespace <?= StringHelper::dirname(ltrim($generator->controllerClass, '\\')) ?>;
 
 use <?= ltrim($generator->baseControllerClass, '\\') ?>;

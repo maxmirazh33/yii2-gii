@@ -42,6 +42,7 @@ use maxmirazh33\image\Widget as ImageWidget;
 <?php if ($generator->issetFiles()): ?>
 use maxmirazh33\file\Widget as FileWidget;
 <?php endif; ?>
+
 ?>
 
 <div class="<?= Inflector::camel2id(StringHelper::basename($generator->modelClass)) ?>-form">

@@ -28,7 +28,6 @@ foreach ($manyManyRelations as $rel) {
 
 echo "<?php\n";
 ?>
-
 namespace <?= StringHelper::dirname(ltrim($generator->searchModelClass, '\\')) ?>;
 
 use Yii;
@@ -167,7 +166,6 @@ class <?= $searchModelClass ?> extends \<?= $generator->modelClass . "\n" ?>
      * Creates data provider instance with search query applied
      *
      * @param array $params
-     *
      * @return ActiveDataProvider
      */
     public function search($params)

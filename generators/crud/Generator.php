@@ -1,5 +1,4 @@
 <?php
-
 namespace maxmirazh33\gii\generators\crud;
 
 use Yii;
@@ -882,7 +881,7 @@ class Generator extends \yii\gii\generators\crud\Generator
     }
 
     /**
-     * Check isset files and need use multipart?form-data enctype
+     * Check isset files and need use multipart/form-data enctype
      * @return bool
      */
     public function issetFiles()
