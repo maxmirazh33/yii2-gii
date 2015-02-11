@@ -38,7 +38,7 @@ $this->params['title'] = '<?= $localName ?>';
 <div class="<?= Inflector::camel2id(StringHelper::basename($generator->modelClass)) ?>-index">
 
     <p>
-        <?= "<?= " ?>Html::a('<?= $generator->generateString('Add') ?>', ['create'], ['class' => 'btn btn-success']) ?>
+        <?= "<?= " ?>Html::a('<?= $generator->generateString('Add') ?>', ['create'], ['class' => 'btn btn-success glyphicon-plus']) ?>
     </p>
 
     <?= "<?= " ?>GridView::widget([

@@ -28,7 +28,7 @@ $this->params['title'] = '<?= $generator->generateString('Add') ?> <?= mb_strtol
 <div class="<?= Inflector::camel2id(StringHelper::basename($generator->modelClass)) ?>-create">
 
     <p class="clear">
-        <?= "<?= Html::a('{$generator->generateString('All')} " . mb_strtolower($generator->getLocalName(Generator::LOCAL_INDEX)) . "', ['index'], ['class' => 'btn btn-info btn-right']) ?>\n" ?>
+        <?= "<?= Html::a('{$generator->generateString('All')} " . mb_strtolower($generator->getLocalName(Generator::LOCAL_INDEX)) . "', ['index'], ['class' => 'btn btn-info btn-right glyphicon-list']) ?>\n" ?>
     </p>
 
     <?= "<?= " ?>$this->render('_form', [

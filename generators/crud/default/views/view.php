@@ -38,16 +38,20 @@ $this->params['title'] = "<?= $generator->getLocalName(Generator::LOCAL_VIEW) ?>
 <div class="<?= Inflector::camel2id(StringHelper::basename($generator->modelClass)) ?>-view">
 
     <p>
-        <?= "<?= " ?>Html::a('<?= $generator->generateString('Edit') ?>', ['update', <?= $urlParams ?>], ['class' => 'btn btn-primary']) ?>
-        <?= "<?= " ?>Html::a('<?= $generator->generateString('Delete') ?>', ['delete', <?= $urlParams ?>], [
-            'class' => 'btn btn-danger',
-            'data' => [
-                'confirm' => '<?= $generator->generateString('Are you sure you want to delete this item?') ?>',
-                'method' => 'post',
-            ],
-        ]) ?>
-        <?= "<?= " ?>Html::a('<?= $generator->generateString('All') ?> <?= mb_strtolower($localName) ?>', ['index'], ['class' => 'btn btn-info btn-right']) ?>
-        <?= "<?= " ?>Html::a('<?= $generator->generateString('Add') ?>', ['create'], ['class' => 'btn btn-success btn-right']) ?>
+        <?= "<?= " ?>Html::a('<?= $generator->generateString('Edit') ?>', ['update', <?= $urlParams ?>], ['class' => 'btn btn-primary glyphicon-pencil']) ?>
+        <?= "<?= " ?>Html::a(
+            '<?= $generator->generateString('Delete') ?>',
+            ['delete', <?= $urlParams ?>],
+            [
+                'class' => 'btn btn-danger glyphicon-trash',
+                'data' => [
+                    'confirm' => '<?= $generator->generateString('Are you sure you want to delete this item?') ?>',
+                    'method' => 'post',
+                ],
+            ]
+        ) ?>
+        <?= "<?= " ?>Html::a('<?= $generator->generateString('All') ?> <?= mb_strtolower($localName) ?>', ['index'], ['class' => 'btn btn-info btn-right glyphicon-plus']) ?>
+        <?= "<?= " ?>Html::a('<?= $generator->generateString('Add') ?>', ['create'], ['class' => 'btn btn-success btn-right glyphicon-list']) ?>
     </p>
 
 <?php $tabs = '            ' ?>
