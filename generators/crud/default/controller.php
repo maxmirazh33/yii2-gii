@@ -24,7 +24,7 @@ use <?= ltrim($generator->baseControllerClass, '\\') ?>;
 class <?= $controllerClass ?> extends <?= StringHelper::basename($generator->baseControllerClass) . "\n" ?>
 {
     /**
-    * @var \<?= ltrim($generator->searchModelClass, '\\') ?> name of model class for this controller
+    * @inheritdoc
     */
     public $modelClass = '\<?= ltrim($generator->searchModelClass, '\\') ?>';
 }
