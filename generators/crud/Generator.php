@@ -848,6 +848,21 @@ class Generator extends \yii\gii\generators\crud\Generator
     }
 
     /**
+     * Check need use maxmirazh33\file\Widget
+     * @return bool
+     */
+    public function useFileWidget()
+    {
+        foreach ($this->getTableSchema()->columns as $column) {
+            if ($this->isFile($column->name)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * @param string $type column type
      * @return bool
      */

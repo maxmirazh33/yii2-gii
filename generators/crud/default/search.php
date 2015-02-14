@@ -37,7 +37,7 @@ use yii\base\Model;
 <?php if ($generator->useImageWidget()): ?>
 use maxmirazh33\image\Behavior as ImageBehavior;
 <?php endif; ?>
-<?php if ($generator->issetFiles()): ?>
+<?php if ($generator->useFileWidget()): ?>
 use maxmirazh33\file\Behavior as FileBehavior;
 <?php endif; ?>
 <?php foreach ($relations as $rel): ?>
@@ -119,7 +119,7 @@ class <?= $searchModelClass ?> extends \<?= $generator->modelClass . "\n" ?>
                 ],
             ],
 <?php endif; ?>
-<?php if ($generator->issetFiles()): ?>
+<?php if ($generator->useFileWidget()): ?>
             [
                 'class' => FileBehavior::className(),
                 'attributes' => [
