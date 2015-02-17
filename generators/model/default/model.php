@@ -33,13 +33,6 @@ use Yii;
  */
 class <?= $className ?> extends <?= '\\' . ltrim($generator->baseClass, '\\') . "\n" ?>
 {
-    /**
-     * @inheritdoc
-     */
-    public static function tableName()
-    {
-        return '<?= $generator->generateTableName($tableName) ?>';
-    }
 <?php if ($generator->db !== 'db'): ?>
 
     /**
