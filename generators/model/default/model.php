@@ -33,8 +33,17 @@ use Yii;
  */
 class <?= $className ?> extends <?= '\\' . ltrim($generator->baseClass, '\\') . "\n" ?>
 {
-<?php if ($generator->db !== 'db'): ?>
+<?php if ($generator->generateTableName($tableName) != $tableName): ?>
+    /**
+    * @inheritdoc
+    */
+    public static function tableName()
+    {
+        return '<?= $generator->generateTableName($tableName) ?>';
+    }
 
+<?php endif; ?>
+<?php if ($generator->db !== 'db'): ?>
     /**
      * @return \yii\db\Connection the database connection used by this AR class.
      */
@@ -42,8 +51,8 @@ class <?= $className ?> extends <?= '\\' . ltrim($generator->baseClass, '\\') . 
     {
         return Yii::$app->get('<?= $generator->db ?>');
     }
-<?php endif; ?>
 
+<?php endif; ?>
     /**
      * @inheritdoc
      */
