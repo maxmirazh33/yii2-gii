@@ -35,8 +35,8 @@ class <?= $className ?> extends <?= '\\' . ltrim($generator->baseClass, '\\') . 
 {
 <?php if ($generator->generateTableName($tableName) != $tableName): ?>
     /**
-    * @inheritdoc
-    */
+     * @inheritdoc
+     */
     public static function tableName()
     {
         return '<?= $generator->generateTableName($tableName) ?>';
