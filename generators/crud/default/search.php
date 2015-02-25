@@ -174,10 +174,12 @@ class <?= $searchModelClass ?> extends \<?= $generator->modelClass . "\n" ?>
     $join = '';
     if ($relations > 0) {
         $join = '->joinWith([';
-        foreach ($relations as $rel) {
-            $join .= "'" . mb_strtolower($rel['className']) . "',";
+        $relByClass = ArrayHelper::getColumn($relations, 'className');
+        foreach ($relByClass as &$rel) {
+            $rel = "'" . mb_strtolower($rel) . "'";
         }
-        $join .= ']);';
+        $join .= implode(', ', $relByClass);
+        $join .= '])';
     }
 ?>
         $query = static::find()<?= $join ?>;
