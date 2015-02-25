@@ -29,20 +29,20 @@ $this->params['title'] = "<?= $generator->generateString('Edit') ?> <?= mb_strto
 <div class="<?= Inflector::camel2id(StringHelper::basename($generator->modelClass)) ?>-update">
 
     <p>
-        <?= "<?= " ?>Html::a('<?= $generator->generateString('View') ?>', ['view', <?= $urlParams ?>], ['class' => 'btn btn-primary glyphicon-eye-open']) ?>
+        <?= "<?= " ?>Html::a('<?= $generator->generateString('View') ?>', ['view', <?= $urlParams ?>], ['class' => 'btn btn-flat btn-primary glyphicon-eye-open']) ?>
         <?= "<?= " ?>Html::a(
             '<?= $generator->generateString('Delete') ?>',
             ['delete', <?= $urlParams ?>],
             [
-                'class' => 'btn btn-danger glyphicon-trash',
+                'class' => 'btn btn-flat btn-danger glyphicon-trash',
                 'data' => [
                     'confirm' => '<?= $generator->generateString('Are you sure you want to delete this item?') ?>',
                     'method' => 'post',
                 ],
             ]
         ) ?>
-        <?= "<?= " ?>Html::a('<?= $generator->generateString('All') ?> <?= mb_strtolower($localName) ?>', ['index'], ['class' => 'btn btn-info btn-right glyphicon-list']) ?>
-        <?= "<?= " ?>Html::a('<?= $generator->generateString('Add') ?>', ['create'], ['class' => 'btn btn-success btn-right glyphicon-plus']) ?>
+        <?= "<?= " ?>Html::a('<?= $generator->generateString('All') ?> <?= mb_strtolower($localName) ?>', ['index'], ['class' => 'btn btn-flat btn-info btn-right glyphicon-list']) ?>
+        <?= "<?= " ?>Html::a('<?= $generator->generateString('Add') ?>', ['create'], ['class' => 'btn btn-flat btn-success btn-right glyphicon-plus']) ?>
     </p>
 
     <?= "<?= " ?>$this->render('_form', [

@@ -62,7 +62,7 @@ use maxmirazh33\file\Widget as FileWidget;
         echo "    <?= \$form->field(\$model, '" . mb_strtolower($rel['className']) . "List')->dropDownList(\$model->get{$rel['relationName']}ForDropdown(), ['multiple' => true]) ?>\n\n";
 } ?>
     <div class="form-group">
-        <?= "<?= " ?>Html::submitButton($model->isNewRecord ? '<?= $generator->generateString('Add') ?>' : '<?= $generator->generateString('Save') ?>', ['class' => $model->isNewRecord ? 'btn btn-success glyphicon-ok' : 'btn btn-primary glyphicon-ok']) ?>
+        <?= "<?= " ?>Html::submitButton($model->isNewRecord ? '<?= $generator->generateString('Add') ?>' : '<?= $generator->generateString('Save') ?>', ['class' => $model->isNewRecord ? 'btn btn-flat btn-success glyphicon-ok' : 'btn btn-flat btn-primary glyphicon-ok']) ?>
     </div>
 
     <?= "<?php " ?>ActiveForm::end(); ?>

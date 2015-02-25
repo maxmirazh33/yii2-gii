@@ -38,16 +38,18 @@ $this->params['title'] = '<?= $localName ?>';
 <div class="<?= Inflector::camel2id(StringHelper::basename($generator->modelClass)) ?>-index">
 
     <p>
-        <?= "<?= " ?>Html::a('<?= $generator->generateString('Add') ?>', ['create'], ['class' => 'btn btn-success glyphicon-plus']) ?>
+        <?= "<?= " ?>Html::a('<?= $generator->generateString('Add') ?>', ['create'], ['class' => 'btn btn-flat btn-success glyphicon-plus']) ?>
     </p>
 
-    <?= "<?= " ?>GridView::widget([
-        'dataProvider' => $dataProvider,
-        <?= !empty($generator->searchModelClass) ? "'filterModel' => \$model,\n        'columns' => [\n" : "'columns' => [\n"; ?>
-            ['class' => 'yii\grid\SerialColumn'],
+    <div class="box box-primary">
+
+        <?= "<?= " ?>GridView::widget([
+            'dataProvider' => $dataProvider,
+            <?= !empty($generator->searchModelClass) ? "'filterModel' => \$model,\n            'layout' => \"{items}\\n<div class='row'>{summary}{pager}</div>\",\n            'columns' => [\n" : "'columns' => [\n"; ?>
+                ['class' => 'yii\grid\SerialColumn'],
 <?php
 $count = 0;
-$tabs = '            ';
+$tabs = '                ';
 if (($tableSchema = $generator->getTableSchema()) === false) {
     foreach ($generator->getColumnNames() as $name) {
         if (++$count < 6) {
@@ -108,5 +110,7 @@ if (($tableSchema = $generator->getTableSchema()) === false) {
             ['class' => 'yii\grid\ActionColumn'],
         ],
     ]); ?>
+
+    </div>
 
 </div>
