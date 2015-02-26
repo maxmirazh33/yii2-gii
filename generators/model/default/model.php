@@ -12,11 +12,20 @@
 /* @var $rules string[] list of validation rules */
 /* @var $relations array list of relations (name => relation declaration) */
 
+use yii\helpers\StringHelper;
+
 echo "<?php\n";
 ?>
 namespace <?= $generator->ns ?>;
 
 use Yii;
+use <?= ltrim($generator->baseClass, '\\') ?>;
+<?php if ($generator->useImageWidget()): ?>
+use maxmirazh33\image\GetImageUrlTrait;
+<?php endif; ?>
+<?php if ($generator->useFileWidget()): ?>
+use maxmirazh33\file\GetFileUrlTrait;
+<?php endif; ?>
 
 /**
  * This is the model class for table "<?= $generator->generateTableName($tableName) ?>".
@@ -31,8 +40,17 @@ use Yii;
 <?php endforeach; ?>
 <?php endif; ?>
  */
-class <?= $className ?> extends <?= '\\' . ltrim($generator->baseClass, '\\') . "\n" ?>
+class <?= $className ?> extends <?= StringHelper::basename($generator->baseClass) . "\n" ?>
 {
+<?php if ($generator->useImageWidget()): ?>
+    use GetImageUrlTrait;
+<?php endif; ?>
+<?php if ($generator->useFileWidget()): ?>
+    use GetFileUrlTrait;
+<?php endif; ?>
+<?php if ($generator->useImageWidget() || $generator->useFileWidget()): ?>
+
+<?php endif; ?>
 <?php if ($generator->generateTableName($tableName) != $tableName): ?>
     /**
      * @inheritdoc
@@ -53,14 +71,6 @@ class <?= $className ?> extends <?= '\\' . ltrim($generator->baseClass, '\\') . 
     }
 
 <?php endif; ?>
-    /**
-     * @inheritdoc
-     */
-    public function rules()
-    {
-        return [<?= "\n            " . implode(",\n            ", $rules) . "\n        " ?>];
-    }
-
     /**
      * @inheritdoc
      */

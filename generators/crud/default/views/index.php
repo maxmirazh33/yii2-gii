@@ -17,7 +17,7 @@ echo "<?php\n";
 ?>
 /**
  * @var yii\web\View $this
- * @var <?= ltrim($generator->searchModelClass, '\\') ?> $model
+ * @var <?= ltrim($generator->searchModelClass, '\\') ?> $searchModel
  * @var $dataProvider yii\data\ActiveDataProvider
  */
 
@@ -45,7 +45,7 @@ $this->params['title'] = '<?= $localName ?>';
 
         <?= "<?= " ?>GridView::widget([
             'dataProvider' => $dataProvider,
-            <?= !empty($generator->searchModelClass) ? "'filterModel' => \$model,\n            'layout' => \"{items}\\n<div class='row'>{summary}{pager}</div>\",\n            'columns' => [\n" : "'columns' => [\n"; ?>
+            <?= !empty($generator->searchModelClass) ? "'filterModel' => \$searchModel,\n            'layout' => \"{items}\\n<div class='row'>{summary}{pager}</div>\",\n            'columns' => [\n" : "'columns' => [\n"; ?>
                 ['class' => 'yii\grid\SerialColumn'],
 <?php
 $count = 0;
@@ -65,7 +65,7 @@ if (($tableSchema = $generator->getTableSchema()) === false) {
         foreach ($relations as $rel) {
             if ($rel['foreignKey'] == $column->name) {
                 $lowerClass = mb_strtolower($rel['className']);
-                $col = "[\n$tabs    'class' => 'yii\\grid\\DataColumn',\n$tabs    'attribute' => '$column->name',\n$tabs    'value' => function (\$model) {\n$tabs        return Html::a(\$model->" . $lowerClass . "->{$rel['titleAttr']}, Url::toRoute(['/$lowerClass/view', 'id' => \$model->$column->name]));\n$tabs    },\n$tabs    'filter' => \$model->get{$rel['relationName']}ForDropdown(),\n$tabs    'format' => 'raw',\n$tabs],";
+                $col = "[\n$tabs    'class' => 'yii\\grid\\DataColumn',\n$tabs    'attribute' => '$column->name',\n$tabs    'value' => function (\$model) {\n$tabs        return Html::a(\$model->" . $lowerClass . "->{$rel['titleAttr']}, Url::toRoute(['/$lowerClass/view', 'id' => \$model->$column->name]));\n$tabs    },\n$tabs    'filter' => \$searchModel->get{$rel['relationName']}ForDropdown(),\n$tabs    'format' => 'raw',\n$tabs],";
                 $skip = true;
                 break;
             }
@@ -78,11 +78,11 @@ if (($tableSchema = $generator->getTableSchema()) === false) {
             } else {
                 $format = $generator->generateColumnFormat($column);
                 if ($format == 'date') {
-                    $col = "[\n$tabs    'class' => 'yii\\grid\\DataColumn',\n$tabs    'attribute' => '$column->name',\n$tabs    'filter' => DatePicker::widget(['model' => \$model, 'attribute' => '$column->name', 'pluginOptions' => ['format' => 'yyyy-mm-dd', 'weekStart' => 1, 'autoclose' => true]]),\n$tabs    'format' => 'date',\n$tabs],";
+                    $col = "[\n$tabs    'class' => 'yii\\grid\\DataColumn',\n$tabs    'attribute' => '$column->name',\n$tabs    'filter' => DatePicker::widget(['model' => \$searchModel, 'attribute' => '$column->name', 'pluginOptions' => ['format' => 'yyyy-mm-dd', 'weekStart' => 1, 'autoclose' => true]]),\n$tabs    'format' => 'date',\n$tabs],";
                 } elseif ($format == 'boolean') {
                     $col = "[\n$tabs    'class' => 'yii\\grid\\DataColumn',\n$tabs    'attribute' => '$column->name',\n$tabs    'filter' => [0 => '{$generator->generateString('No')}', 1 => '{$generator->generateString('Yes')}'],\n$tabs    'format' => 'boolean',\n$tabs],";
                 } elseif ($generator->isEnum($column)) {
-                    $col = "[\n$tabs    'class' => 'yii\\grid\\DataColumn',\n$tabs    'attribute' => '$column->name',\n$tabs    'filter' => \$model->get" . Inflector::humanize(Inflector::variablize($column->name)) . "Enums(),\n$tabs],";
+                    $col = "[\n$tabs    'class' => 'yii\\grid\\DataColumn',\n$tabs    'attribute' => '$column->name',\n$tabs    'filter' => \$searchModel->get" . Inflector::humanize(Inflector::variablize($column->name)) . "Enums(),\n$tabs],";
                 } elseif ($format === 'text') {
                     $col = "'$column->name',";
                     $manyRows = false;

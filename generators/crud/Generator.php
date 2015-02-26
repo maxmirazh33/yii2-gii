@@ -36,6 +36,14 @@ class Generator extends \yii\gii\generators\crud\Generator
      * @var bool add in form editable many-to-many relations
      */
     public $editManyMany = true;
+    /**
+     * @var string
+     */
+    public $frontendModelClass;
+    /**
+     * @var string
+     */
+    public $backendModelClass;
 
     /**
      * @param int $plural required plural
@@ -64,6 +72,9 @@ class Generator extends \yii\gii\generators\crud\Generator
         return array_merge(parent::rules(), [
             [['localNames'], 'safe'],
             [['addInMenu', 'editManyMany'], 'boolean'],
+            [['frontendModelClass', 'backendModelClass'], 'filter', 'filter' => 'trim'],
+            [['frontendModelClass', 'backendModelClass'], 'required'],
+            [['frontendModelClass', 'backendModelClass'], 'match', 'pattern' => '/^[\w\\\\]*$/', 'message' => 'Only word characters and backslashes are allowed.'],
         ]);
     }
 
@@ -74,7 +85,8 @@ class Generator extends \yii\gii\generators\crud\Generator
     {
         return array_merge(parent::attributeLabels(), [
             'modelClass' => 'Common Model Class',
-            'searchModelClass' => 'Backend Model Class',
+            'backendModelClass' => 'Backend Model Class',
+            'frontendModelClass' => 'Frontend Model Class',
             'localNames' => 'Local Model Names',
             'addInMenu' => 'Add in menu',
             'editManyMany' => 'Add edit many-to-many',
@@ -89,11 +101,13 @@ class Generator extends \yii\gii\generators\crud\Generator
         return array_merge(parent::hints(), [
             'modelClass' => 'This is the ActiveRecord class associated with the table that CRUD will be built upon.
                 You should provide a fully qualified class name, e.g., <code>common\models\Post</code>.',
-            'searchModelClass' => 'This is the name of the backend model class to be generated. You should provide a fully
+            'backendModelClass' => 'This is the name of the backend model class to be generated. You should provide a fully
                 qualified namespaced class name, e.g., <code>backend\models\Post</code>.',
-            'localNames' => 'This is the local name of model, as <code>Статья Статьи Статью</code>',
-            'addInMenu' => 'Add this controller in menu',
-            'editManyMany' => 'Add edit many-to-many relations',
+            'frontendModelClass' => 'This is the name of the frontend model class to be generated. You should provide a fully
+                qualified namespaced class name, e.g., <code>frontend\models\Post</code>.',
+            'localNames' => 'This is the local name of model, as <code>Статья Статьи Статью</code>.',
+            'addInMenu' => 'Add this controller in menu.',
+            'editManyMany' => 'Add edit many-to-many relations.',
         ]);
     }
 
@@ -133,7 +147,7 @@ class Generator extends \yii\gii\generators\crud\Generator
 
         $rules = [];
         foreach ($types as $type => $columns) {
-            $rules[] = "[['" . implode("', '", $columns) . "'], '$type', 'on' => ['search']]";
+            $rules[] = "[['" . implode("', '", $columns) . "'], '$type']";
         }
 
         return $rules;
@@ -226,30 +240,30 @@ class Generator extends \yii\gii\generators\crud\Generator
         foreach ($types as $type => $columns) {
             if ($type == 'enum') {
                 foreach ($columns as $col) {
-                    $rules[] = "[['" . $col . "'], 'in', 'range' => static::get" . Inflector::humanize(Inflector::variablize($col)) . "Enums(), 'except' => ['search']]";
+                    $rules[] = "[['" . $col . "'], 'in', 'range' => static::get" . Inflector::humanize(Inflector::variablize($col)) . "Enums()]";
                 }
             } elseif ($type == 'date') {
-                $rules[] = "[['" . implode("', '", $columns) . "'], '$type', 'format' => 'php:Y-m-d', 'except' => ['search']]";
+                $rules[] = "[['" . implode("', '", $columns) . "'], '$type', 'format' => 'php:Y-m-d']";
             } elseif ($type == 'time') {
-                $rules[] = "[['" . implode("', '", $columns) . "'], 'date', 'format' => 'php:H:i:s', 'except' => ['search']]";
+                $rules[] = "[['" . implode("', '", $columns) . "'], 'date', 'format' => 'php:H:i:s']";
             } elseif ($type == 'year') {
-                $rules[] = "[['" . implode("', '", $columns) . "'], 'date', 'format' => 'php:Y', 'except' => ['search']]";
+                $rules[] = "[['" . implode("', '", $columns) . "'], 'date', 'format' => 'php:Y']";
             } elseif ($type == 'datetime') {
-                $rules[] = "[['" . implode("', '", $columns) . "'], 'date', 'format' => 'php:Y-m-d H:i:s', 'except' => ['search']]";
+                $rules[] = "[['" . implode("', '", $columns) . "'], 'date', 'format' => 'php:Y-m-d H:i:s']";
             } elseif ($type == 'in') {
                 foreach ($columns as $col) {
-                    $rules[] = "[['" . $col[0] . "'], 'in', 'range' => array_keys(static::get" . $col[1] . "ForDropdown()), 'except' => ['search']]";
+                    $rules[] = "[['" . $col[0] . "'], 'in', 'range' => array_keys(static::get" . $col[1] . "ForDropdown())]";
                 }
             } elseif ($type == 'image') {
-                $rules[] = "[['" . implode("', '", $columns) . "'], '$type', 'extensions' => ['jpg', 'jpeg', 'png', 'gif'], 'skipOnEmpty' => \$this->scenario == 'update', 'except' => ['search']]";
+                $rules[] = "[['" . implode("', '", $columns) . "'], '$type', 'extensions' => ['jpg', 'jpeg', 'png', 'gif'], 'skipOnEmpty' => \$this->scenario == 'update']";
             } elseif ($type == 'file') {
-                $rules[] = "[['" . implode("', '", $columns) . "'], '$type', 'skipOnEmpty' => \$this->scenario == 'update', 'except' => ['search']]";
+                $rules[] = "[['" . implode("', '", $columns) . "'], '$type', 'skipOnEmpty' => \$this->scenario == 'update']";
             } else {
-                $rules[] = "[['" . implode("', '", $columns) . "'], '$type', 'except' => ['search']]";
+                $rules[] = "[['" . implode("', '", $columns) . "'], '$type']";
             }
         }
         foreach ($lengths as $length => $columns) {
-            $rules[] = "[['" . implode("', '", $columns) . "'], 'string', 'max' => $length, 'except' => ['search']]";
+            $rules[] = "[['" . implode("', '", $columns) . "'], 'string', 'max' => $length]";
         }
 
         // Unique indexes rules
@@ -262,13 +276,13 @@ class Generator extends \yii\gii\generators\crud\Generator
                     $attributesCount = count($uniqueColumns);
 
                     if ($attributesCount == 1) {
-                        $rules[] = "[['" . $uniqueColumns[0] . "'], 'unique', 'except' => ['search']]";
+                        $rules[] = "[['" . $uniqueColumns[0] . "'], 'unique']";
                     } elseif ($attributesCount > 1) {
                         $labels = array_intersect_key($this->generateLabels($table), array_flip($uniqueColumns));
                         $lastLabel = array_pop($labels);
                         $columnsList = implode("', '", $uniqueColumns);
                         $rules[] = "[['" . $columnsList . "'], 'unique', 'targetAttribute' => ['" . $columnsList . "'], 'message' => 'The combination of "
-                            . implode(', ', $labels) . " and " . $lastLabel . " has already been taken.', 'except' => ['search']]";
+                            . implode(', ', $labels) . " and " . $lastLabel . " has already been taken.']";
                     }
                 }
             }
@@ -517,6 +531,12 @@ class Generator extends \yii\gii\generators\crud\Generator
     {
         $files = parent::generate();
 
+        $backendModel = Yii::getAlias('@' . str_replace('\\', '/', ltrim($this->backendModelClass, '\\') . '.php'));
+        $files[] = new CodeFile($backendModel, $this->render('backend.php'));
+
+        $frontendModel = Yii::getAlias('@' . str_replace('\\', '/', ltrim($this->frontendModelClass, '\\') . '.php'));
+        $files[] = new CodeFile($frontendModel, $this->render('frontend.php'));
+
         if ($this->addInMenu) {
             $files[] = $this->addInMenu($this->getControllerID(), $this->getLocalName(self::LOCAL_INDEX));
         }
@@ -612,7 +632,7 @@ class Generator extends \yii\gii\generators\crud\Generator
             return parent::getNameAttribute();
         }
         foreach ($schema->columnNames as $name) {
-            if (!strcasecmp($name, 'name') || !strcasecmp($name, 'title')) {
+            if (!strcasecmp($name, 'name') || !strcasecmp($name, 'title') || !strcasecmp($name, 'label')) {
                 return $name;
             }
         }

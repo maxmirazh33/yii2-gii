@@ -18,14 +18,14 @@ echo "<?php\n";
 ?>
 /**
  * @var yii\web\View $this
- * @var <?= ltrim($generator->searchModelClass, '\\') ?> $model
+ * @var <?= ltrim($generator->backendModelClass, '\\') ?> $model
  * @var yii\widgets\ActiveForm $form
  */
 
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 <?php if ($generator->useImperavi()): ?>
-use backend\components\ImperaviWidget;
+use backend\widgets\ImperaviWidget;
 <?php endif; ?>
 <?php if ($generator->useDatePicker()): ?>
 use kartik\date\DatePicker;

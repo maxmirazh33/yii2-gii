@@ -15,7 +15,7 @@ echo "<?php\n";
 ?>
 /**
  * @var yii\web\View $this
- * @var <?= ltrim($generator->searchModelClass, '\\') ?> $model
+ * @var <?= ltrim($generator->backendModelClass, '\\') ?> $model
  */
 
 use yii\helpers\Html;
