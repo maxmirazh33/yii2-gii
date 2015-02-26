@@ -17,6 +17,7 @@ echo "<?php\n";
 namespace <?= $generator->ns ?>;
 
 use Yii;
+use <?= $generator->baseClass ?>;
 
 /**
  * This is the model class for table "<?= $generator->generateTableName($tableName) ?>".
@@ -31,7 +32,7 @@ use Yii;
 <?php endforeach; ?>
 <?php endif; ?>
  */
-class <?= $className ?> extends <?= '\\' . ltrim($generator->baseClass, '\\') . "\n" ?>
+class <?= $className ?> extends <?= mb_substr($generator->baseClass, mb_stripos($generator->baseClass, '\\')) . "\n" ?>
 {
 <?php if ($generator->generateTableName($tableName) != $tableName): ?>
     /**
