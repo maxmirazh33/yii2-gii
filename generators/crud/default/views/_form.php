@@ -53,9 +53,9 @@ use maxmirazh33\file\Widget as FileWidget;
         <?= "<?= \$form->errorSummary([\$model]) ?>\n" ?>
     </div>
 
-<?php foreach ($generator->getColumnNames() as $attribute) {
-    if (in_array($attribute, $safeAttributes)) {
-        echo "    <?= " . $generator->generateActiveField($attribute) . " ?>\n\n";
+<?php foreach ($generator->getTableSchema()->columns as $column) {
+    if (in_array($column->name, $safeAttributes) && !$column->autoIncrement) {
+        echo "    <?= " . $generator->generateActiveField($column->name) . " ?>\n\n";
     }
 } ?>
 <?php foreach ($generator->generateManyManyRelations() as $rel) {
