@@ -32,7 +32,7 @@ use <?= $generator->baseClass ?>;
 <?php endforeach; ?>
 <?php endif; ?>
  */
-class <?= $className ?> extends <?= mb_substr($generator->baseClass, mb_stripos($generator->baseClass, '\\')) . "\n" ?>
+class <?= $className ?> extends <?= mb_substr($generator->baseClass, mb_strrpos($generator->baseClass, '\\') + 1) . "\n" ?>
 {
 <?php if ($generator->generateTableName($tableName) != $tableName): ?>
     /**
