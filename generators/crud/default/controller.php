@@ -9,7 +9,7 @@
 use yii\helpers\StringHelper;
 
 $controllerClass = StringHelper::basename($generator->controllerClass);
-$searchModelClass = StringHelper::basename($generator->searchModelClass);
+$backendModelClass = StringHelper::basename($generator->backendModelClass);
 
 echo "<?php\n";
 ?>
@@ -18,12 +18,8 @@ namespace <?= StringHelper::dirname(ltrim($generator->controllerClass, '\\')) ?>
 use <?= ltrim($generator->baseControllerClass, '\\') ?>;
 
 /**
- * <?= $controllerClass ?> implements the CRUD actions for <?= $searchModelClass ?> model.
+ * <?= $controllerClass ?> implements the CRUD actions for <?= $backendModelClass ?> model.
  */
 class <?= $controllerClass ?> extends <?= StringHelper::basename($generator->baseControllerClass) . "\n" ?>
 {
-    /**
-    * @inheritdoc
-    */
-    public $modelClass = '\<?= ltrim($generator->searchModelClass, '\\') ?>';
 }

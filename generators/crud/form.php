@@ -6,6 +6,8 @@
  */
 
 echo $form->field($generator, 'modelClass');
+echo $form->field($generator, 'frontendModelClass');
+echo $form->field($generator, 'backendModelClass');
 echo $form->field($generator, 'searchModelClass');
 echo $form->field($generator, 'controllerClass');
 echo $form->field($generator, 'viewPath');

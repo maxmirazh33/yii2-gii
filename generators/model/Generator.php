@@ -128,4 +128,39 @@ class Generator extends \yii\gii\generators\model\Generator
 
         return $relations;
     }
+
+    /**
+     * Check need use maxmirazh33\image\Widget
+     * @return bool
+     */
+    public function useImageWidget()
+    {
+        foreach ($this->getTableSchema()->columns as $column) {
+            if (preg_match('/(image|img|photo|avatar|logo)/i', $column->name)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Check need use maxmirazh33\file\Widget
+     * @return bool
+     */
+    public function useFileWidget()
+    {
+        foreach ($this->getTableSchema()->columns as $column) {
+            if (preg_match('/(file|doc|attach|pdf|presentation)/i', $column->name)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function getTableSchema()
+    {
+        return $this->getDbConnection()->getTableSchema($this->tableName);
+    }
 }
