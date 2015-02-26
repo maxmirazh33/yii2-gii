@@ -7,8 +7,6 @@
  */
 
 use yii\helpers\StringHelper;
-use yii\helpers\ArrayHelper;
-use yii\helpers\Inflector;
 
 $modelClass = StringHelper::basename($generator->modelClass);
 $backendModelClass = StringHelper::basename($generator->backendModelClass);
