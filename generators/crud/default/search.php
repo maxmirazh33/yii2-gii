@@ -20,7 +20,6 @@ echo "<?php\n";
 ?>
 namespace <?= StringHelper::dirname(ltrim($generator->searchModelClass, '\\')) ?>;
 
-use Yii;
 use yii\data\ActiveDataProvider;
 <?php if (count($relations) > 0): ?>
 use yii\helpers\ArrayHelper;

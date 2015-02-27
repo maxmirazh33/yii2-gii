@@ -22,7 +22,6 @@ echo "<?php\n";
 ?>
 namespace <?= StringHelper::dirname(ltrim($generator->backendModelClass, '\\')) ?>;
 
-use Yii;
 use yii\helpers\ArrayHelper;
 use yii\base\Model;
 <?php if ($generator->useImageWidget()): ?>

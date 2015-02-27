@@ -18,7 +18,9 @@ echo "<?php\n";
 ?>
 namespace <?= $generator->ns ?>;
 
+<?php if ($generator->db !== 'db'): ?>
 use Yii;
+<?php endif; ?>
 use <?= ltrim($generator->baseClass, '\\') ?>;
 <?php if ($generator->useImageWidget()): ?>
 use maxmirazh33\image\GetImageUrlTrait;
